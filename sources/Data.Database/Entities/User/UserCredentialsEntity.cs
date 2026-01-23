@@ -4,6 +4,7 @@
     {
         public string Salt { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
-        public string? ApiKey { get; set; }
+        public string? RefreshToken { get; set; }
+        public DateTime ExpireDate { get; set; }
     }
 }

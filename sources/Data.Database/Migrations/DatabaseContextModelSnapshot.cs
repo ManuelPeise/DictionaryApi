@@ -49,6 +49,13 @@ namespace Data.Database.Migrations
                     b.Property<string>("StackTrace")
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.ToTable("LogMessageTable");
@@ -60,9 +67,6 @@ namespace Data.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("ApiKey")
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -70,17 +74,43 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("ExpireDate")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");
 
                     b.Property<string>("Salt")
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.HasKey("Id");
 
                     b.ToTable("UserCredentialsTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "System",
+                            ExpireDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PasswordHash = "UGFzc0B3b3JkOTU2YWJjOTYtZWY1MC00ODQ4LWEzZTEtNzc2YzEwNjBkMmY2",
+                            Salt = "956abc96-ef50-4848-a3e1-776c1060d2f6",
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdatedBy = ""
+                        });
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>
@@ -99,6 +129,10 @@ namespace Data.Database.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -111,15 +145,18 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longblob");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("UserCredentialsId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("UserIdExternal")
                         .HasColumnType("char(36)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
 
                     b.Property<int>("UserRole")
                         .HasColumnType("int");
@@ -129,6 +166,24 @@ namespace Data.Database.Migrations
                     b.HasIndex("UserCredentialsId");
 
                     b.ToTable("UserTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "System",
+                            DateOfBirth = new DateTime(1980, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            EmailAddress = "admin.user@app.com",
+                            FirstName = "Admin",
+                            LastName = "User",
+                            ProfileImage = new byte[0],
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdatedBy = "",
+                            UserCredentialsId = 1,
+                            UserIdExternal = new Guid("95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d"),
+                            UserRole = 1
+                        });
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>

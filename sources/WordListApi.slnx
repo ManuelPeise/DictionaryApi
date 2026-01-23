@@ -7,9 +7,11 @@
   </Folder>
   <Folder Name="/03 Logic/">
     <Project Path="Logic.Shared/Logic.Shared.csproj" Id="c14a2818-d4c4-44c8-97fd-3cfe2637b189" />
+    <Project Path="Logic.UserService/Logic.UserService.csproj" Id="b0b7db4c-97c0-4487-a8bc-eb09e25383c1" />
     <Project Path="Logic.Words/Logic.Words.csproj" Id="b15b2d7d-1d61-440a-b973-7d8ad8acb46d" />
   </Folder>
   <Folder Name="/04 Data/">
+    <Project Path="Data.Accessor/Data.Accessor.csproj" Id="80198cd0-e879-4cd4-8b34-7d77690f6e54" />
     <Project Path="Data.Database/Data.Database.csproj" Id="7fb75159-8138-48ca-ba83-74dbf8b3657a" />
   </Folder>
   <Folder Name="/05 Shared/">
