@@ -20,4 +20,8 @@
     <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.9" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Shared.Enums\Shared.Enums.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -7,7 +7,7 @@ namespace Logic.Shared.DI
     {
         public static void RegisterSharedServices(this IServiceCollection services)
         {
-            services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+            services.AddScoped(typeof(ILogger<>), typeof(Logger<>));
         }
     }
 }

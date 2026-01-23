@@ -5,9 +5,18 @@
   <Folder Name="/02 Service/">
     <Project Path="Service.Api/Service.Api.csproj" Id="d197e5cf-0dea-412f-bd8e-e41708193c74" />
   </Folder>
-  <Folder Name="/03 Logic/" />
+  <Folder Name="/03 Logic/">
+    <Project Path="Logic.Shared/Logic.Shared.csproj" Id="c14a2818-d4c4-44c8-97fd-3cfe2637b189" />
+    <Project Path="Logic.Words/Logic.Words.csproj" Id="b15b2d7d-1d61-440a-b973-7d8ad8acb46d" />
+  </Folder>
   <Folder Name="/04 Data/">
     <Project Path="Data.Database/Data.Database.csproj" Id="7fb75159-8138-48ca-ba83-74dbf8b3657a" />
   </Folder>
-  <Folder Name="/05 Shared/" />
+  <Folder Name="/05 Shared/">
+    <Project Path="Shared.Enums/Shared.Enums.csproj" Id="82beaac3-7920-4967-9962-94bc65ae4daf" />
+    <Project Path="Shared.Models/Shared.Models.csproj" Id="801d3ad0-ff27-4929-8c71-d241a1590d89" />
+  </Folder>
+  <Folder Name="/Projektmappenelemente/">
+    <File Path="AGENT.md" />
+  </Folder>
 </Solution>

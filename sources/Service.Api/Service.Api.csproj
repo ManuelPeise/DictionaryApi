@@ -11,4 +11,8 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Logic.Words\Logic.Words.csproj" />
+  </ItemGroup>
+
 </Project>

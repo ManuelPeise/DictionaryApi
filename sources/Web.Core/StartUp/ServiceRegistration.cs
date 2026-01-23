@@ -1,4 +1,6 @@
 ﻿using Data.Database;
+using Logic.Shared.DI;
+using Logic.Words.DI;
 using Microsoft.EntityFrameworkCore;
 
 namespace Web.Core.StartUp
@@ -20,7 +22,10 @@ namespace Web.Core.StartUp
 
                 options.UseMySQL(connectionString);
             });
-                
+
+            services.RegisterSharedServices();
+            services.RegisterWordServices();
+
             services.AddControllers();
             services.AddOpenApi();
             services.AddSwaggerGen();
