@@ -240,13 +240,13 @@ namespace Logic.Words
                 case "adverb":
                     return "Adverb";
                 case "article":
-                    return "Artikel",
+                    return "Artikel";
                 case "noun":
                     return "Nomen";
                 case "verb":
                     return "Verb";
                 case "preposition":
-                    return "Präposition",
+                    return "Präposition";
                 case "pronoun":
                     return "Pronomen";
                 case "proper noun":

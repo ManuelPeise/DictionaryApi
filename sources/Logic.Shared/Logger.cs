@@ -28,7 +28,7 @@ namespace Logic.Shared
                 CreatedAt = DateTime.UtcNow
             };
             
-            _context.LogTable.Add(logEntry);
+            _context.LogMessageTable.Add(logEntry);
             
             await _context.SaveChangesAsync();
         }
