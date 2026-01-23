@@ -1,4 +1,5 @@
 ﻿using Data.Database.Entities;
+using Data.Database.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Database
@@ -15,6 +16,8 @@ namespace Data.Database
             base.OnModelCreating(modelBuilder);
         }
 
-        public DbSet<LogMessageEntity> LogTable { get; set; }
+        public DbSet<UserEntity> UserTable { get; set; }
+        public DbSet<UserCredentialsEntity> UserCredentialsTable { get; set; }
+        public DbSet<LogMessageEntity> LogMessageTable { get; set; }
     }
 }
