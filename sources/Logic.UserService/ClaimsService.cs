@@ -9,10 +9,11 @@ namespace Logic.UserService
         {
             return new List<Claim>
             {
-                new Claim("UserName", userEntity.UserName),
-                new Claim("UserId", userEntity.Id.ToString()),
-                new Claim("UserRole", userEntity.UserRole.ToString()),
-                new Claim("ExpireTime", DateTime.UtcNow.AddHours(1).ToString("o"))
+                new Claim("user_id", userEntity.Id.ToString()),
+                new Claim("user_name", userEntity.UserName),
+                new Claim("email_address", userEntity.EmailAddress),
+                new Claim("user_role", userEntity.UserRole.ToString()),
+                new Claim("expire_time", DateTime.UtcNow.AddHours(1).ToString("o"))
             };
         }
     }

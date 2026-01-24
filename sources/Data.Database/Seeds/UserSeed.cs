@@ -16,7 +16,7 @@ namespace Data.Database.Seeds
             builder.HasData(new UserEntity
             {
                 Id = 1,
-                UserIdExternal = new Guid("95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d"),
+                UserIdExternal = "95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d",
                 FirstName = "Admin",
                 LastName = "User",
                 EmailAddress = "admin.user@app.com",
@@ -24,7 +24,8 @@ namespace Data.Database.Seeds
                 UserRole = UserRoleEnum.Admin,
                 CreatedAt = timeStamp,
                 CreatedBy = "System",
-                UserCredentialsId = 1
+                UserCredentialsId = 1,
+                UserSettingsId = 1
             });
         }
     }

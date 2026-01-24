@@ -1,6 +1,5 @@
 ﻿using Data.Database;
 using Data.Database.Entities.User;
-using Logic.Shared;
 using Logic.UserService.Interfaces;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -12,15 +11,15 @@ using System.Text;
 
 namespace Logic.UserService
 {
-    internal class JwtTokenService : ALogicBase, IJwtTokenService
+    internal class JwtTokenService : IJwtTokenService
     {
         private readonly IOptions<JwtTokenModel> _jwtOptions;
         private readonly IUserUnitOfWork _unitOfWork;
 
         public JwtTokenService(
-            DatabaseContext dbContext, 
+            DatabaseContext dbContext,
             IUserUnitOfWork unitOfWork, 
-            IOptions<JwtTokenModel> jwtOptions) : base(dbContext)
+            IOptions<JwtTokenModel> jwtOptions)
         {
             _jwtOptions = jwtOptions;
             _unitOfWork = unitOfWork;

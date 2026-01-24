@@ -1,6 +1,7 @@
 ﻿using Data.Database;
-using Data.Database.Entities.User;
 using Logic.Shared;
+using Logic.Shared.Interfaces;
+using Logic.Shared.Models;
 using Logic.UserService.Interfaces;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
@@ -8,27 +9,31 @@ using Shared.Models.Authentication;
 
 namespace Logic.UserService
 {
-    public class UserService : ALogicBase, IUserService
+    public class UserService : IUserService
     {
         private readonly Logger<UserService> _logger;
         private readonly IUserUnitOfWork _userUnitOfWork;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly ILogicBase _logicBase;
+
         public UserService(
             DatabaseContext dbContext,
+            ILogicBase logicBase,
             IUserUnitOfWork userUnitOfWork,
             IJwtTokenService jwtTokenService,
-            IOptions<JwtTokenModel> jwtOptions) : base(dbContext)
+            IOptions<JwtTokenModel> jwtOptions)
         {
             _logger = new Logger<UserService>(dbContext);
             _userUnitOfWork = userUnitOfWork;
             _jwtTokenService = jwtTokenService;
+            _logicBase = logicBase;
         }
 
         public async Task<AuthenticationResult> AuthenticateUser(AuthenticationRequest request)
         {
             try
             {
-                if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password) || request.IdExternal == Guid.Empty)
+                if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(request.IdExternal))
                 {
                     return new AuthenticationResult
                     {
@@ -38,10 +43,10 @@ namespace Logic.UserService
 
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
                     user.UserIdExternal == request.IdExternal &&
-                    user.UserName == request.UserName,
+                    user.EmailAddress == request.UserName,
                     false, x => x.UserCredentials);
 
-                if (userEntity == null)
+                if (userEntity == null || userEntity?.UserCredentials == null)
                 {
                     return new AuthenticationResult
                     {
@@ -49,7 +54,7 @@ namespace Logic.UserService
                     };
                 }
 
-                var passwordHash = GetPasswordHash(request.Password, userEntity.UserCredentials.Salt);
+                var passwordHash = _logicBase.GetPasswordHash(request.Password, userEntity.UserCredentials.Salt);
 
                 if (passwordHash != userEntity.UserCredentials.PasswordHash)
                 {
@@ -89,17 +94,20 @@ namespace Logic.UserService
         {
             try
             {
+                var currentUser = _logicBase.GetCurrentUser();
+
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.UserIdExternal.ToString() == idExternal,
+                    user.EmailAddress == currentUser.EmailAddress,
                     false, x => x.UserCredentials);
-                
-                if (userEntity == null)
+
+                if (userEntity == null || userEntity?.UserCredentials == null)
                 {
                     return false;
                 }
 
                 userEntity.UserCredentials.RefreshToken = string.Empty;
-                
+                userEntity.UserCredentials.ExpireDate = DateTime.MinValue;
+
                 await _userUnitOfWork.SaveChangesAsync("System");
 
                 return true;
@@ -112,6 +120,28 @@ namespace Logic.UserService
                 return false;
             }
         }
-        
+
+        public async Task<CurrentUser?> GetCurrentUserData()
+        {
+            try
+            {
+                var currentUser = _logicBase.GetCurrentUser(true);
+
+                return currentUser;
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync("Could not load current user data.",
+                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+
+                return null;
+            }
+        }
+
+        public async Task UpdateUserSettings()
+        {
+
+        }
+
     }
 }

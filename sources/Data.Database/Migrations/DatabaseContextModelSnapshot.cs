@@ -155,15 +155,21 @@ namespace Data.Database.Migrations
                     b.Property<int>("UserCredentialsId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("UserIdExternal")
-                        .HasColumnType("char(36)");
+                    b.Property<string>("UserIdExternal")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("UserRole")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserSettingsId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserCredentialsId");
+
+                    b.HasIndex("UserSettingsId");
 
                     b.ToTable("UserTable");
 
@@ -181,8 +187,48 @@ namespace Data.Database.Migrations
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = "",
                             UserCredentialsId = 1,
-                            UserIdExternal = new Guid("95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d"),
-                            UserRole = 1
+                            UserIdExternal = "95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d",
+                            UserRole = 1,
+                            UserSettingsId = 1
+                        });
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.User.UserSettingsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("DataSyncEnabled")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserSettingsTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "System",
+                            DataSyncEnabled = true,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdatedBy = ""
                         });
                 });
 
@@ -194,7 +240,15 @@ namespace Data.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Data.Database.Entities.User.UserSettingsEntity", "UserSettings")
+                        .WithMany()
+                        .HasForeignKey("UserSettingsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("UserCredentials");
+
+                    b.Navigation("UserSettings");
                 });
 #pragma warning restore 612, 618
         }

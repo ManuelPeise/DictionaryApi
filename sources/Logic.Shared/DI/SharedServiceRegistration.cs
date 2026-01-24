@@ -8,6 +8,7 @@ namespace Logic.Shared.DI
         public static void RegisterSharedServices(this IServiceCollection services)
         {
             services.AddScoped(typeof(ILogger<>), typeof(Logger<>));
+            services.AddScoped<ILogicBase, LogicBase>();
         }
     }
 }

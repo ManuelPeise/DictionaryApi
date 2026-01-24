@@ -1,21 +1,28 @@
 ﻿using Data.Database;
 using Data.Database.Entities.User;
 using Logic.Shared;
+using Logic.Shared.Interfaces;
 using Logic.UserService.Interfaces;
+using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Administration;
+using Shared.Models.Settings;
 
 namespace Logic.UserService
 {
-    public class UserAdministration : ALogicBase, IUserAdministration
+    public class UserAdministration : IUserAdministration
     {
         private readonly Logger<UserAdministration> _logger;
         private readonly IUserUnitOfWork _userUnitOfWork;
+        private readonly ILogicBase _logicBase;
+        private readonly UserSettings _userSettings;
 
-        public UserAdministration(DatabaseContext dbContect, IUserUnitOfWork userUnitOfWork) : base(dbContect)
+        public UserAdministration(DatabaseContext dbContect, IUserUnitOfWork userUnitOfWork, ILogicBase logicBase, IOptions<UserSettings> userSettings)
         {
             _logger = new Logger<UserAdministration>(dbContect);
             _userUnitOfWork = userUnitOfWork;
+            _logicBase = logicBase;
+            _userSettings = userSettings.Value;
         }
 
         public async Task<UserRegistrationResult?> RegisterUser(UserRegistrationRequestModel requestModel)
@@ -25,7 +32,7 @@ namespace Logic.UserService
                 var existingUserEntity = await _userUnitOfWork.UserRepository
                     .FirstOrDefaultAsync(user => user.EmailAddress == requestModel.EmailAddress, false);
 
-                if(existingUserEntity != null)
+                if (existingUserEntity != null)
                 {
                     return new UserRegistrationResult
                     {
@@ -38,7 +45,7 @@ namespace Logic.UserService
 
                 var newUserEntity = new UserEntity
                 {
-                    UserIdExternal = Guid.NewGuid(),
+                    UserIdExternal = Guid.NewGuid().ToString(),
                     FirstName = requestModel.FirstName,
                     LastName = requestModel.LastName,
                     DateOfBirth = requestModel.DateOfBirth,
@@ -47,10 +54,14 @@ namespace Logic.UserService
                     UserRole = UserRoleEnum.User,
                     UserCredentials = new UserCredentialsEntity
                     {
-                        PasswordHash = GetPasswordHash(requestModel.Password, salt),
+                        PasswordHash = _logicBase.GetPasswordHash(requestModel.Password, salt),
                         Salt = salt,
                         RefreshToken = null,
- 
+
+                    },
+                    UserSettings = new UserSettingsEntity
+                    {
+                         DataSyncEnabled = _userSettings.IsSyncEnabled,
                     },
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System",
@@ -58,9 +69,10 @@ namespace Logic.UserService
 
                 var result = await _userUnitOfWork.UserRepository.AddAsync(newUserEntity);
 
-                if(result > 0)
+                if (result > 0)
                 {
-                    await _userUnitOfWork.SaveChangesAsync("System");
+                    var currentUser = _logicBase.GetCurrentUser();
+                    await _userUnitOfWork.SaveChangesAsync(currentUser.UserName);
                 }
 
                 return new UserRegistrationResult
@@ -70,10 +82,10 @@ namespace Logic.UserService
                 };
 
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 await _logger.LogMessageAsync(
-                    "One or more errors occurred while register new user.", 
+                    "One or more errors occurred while register new user.",
                     LogMessageTypeEnum.Error,
                     exception.Message,
                     exception.StackTrace);
