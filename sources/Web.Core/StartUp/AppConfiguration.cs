@@ -2,13 +2,15 @@
 {
     internal static class AppConfiguration
     {
-        internal static void ConfigureApplication(this WebApplication app)
+        internal static void ConfigureApplication(this WebApplication app, string corsPolicy)
         {
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+            app.UseCors(corsPolicy);
 
             app.UseHttpsRedirection();
 

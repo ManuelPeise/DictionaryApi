@@ -15,10 +15,20 @@ namespace Web.Core.StartUp
 {
     internal static class ServiceRegistration
     {
-        internal static void RegisterServices(this IServiceCollection services, IConfiguration configuration)
+        internal static void RegisterServices(this IServiceCollection services, IConfiguration configuration, string corsePolicy)
         {
             services.Configure<JwtTokenModel>(configuration.GetSection("Jwt"));
             services.Configure<UserSettings>(configuration.GetSection("Settings"));
+
+            services.AddCors(options =>
+            {
+                options.AddPolicy(corsePolicy, builder =>
+                {
+                    builder.AllowAnyOrigin()
+                           .AllowAnyMethod()
+                           .AllowAnyHeader();
+                });
+            });
 
             services.AddDbContext<DatabaseContext>(options =>
             {

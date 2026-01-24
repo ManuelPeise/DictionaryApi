@@ -10,9 +10,9 @@ namespace Service.Api.Controllers
         }
 
         [HttpGet(Name = "CheckHealth")]
-        public async Task<string> CheckHealth()
+        public async Task<bool> CheckHealth()
         {
-            return await Task.FromResult("Hello World!");
+            return await Task.FromResult(true);
         }
     }
 }
