@@ -1,0 +1,6 @@
+services:
+  web.core:
+    image: ${DOCKER_REGISTRY-}webcore
+    build:
+      context: .
+      dockerfile: Web.Core/Dockerfile

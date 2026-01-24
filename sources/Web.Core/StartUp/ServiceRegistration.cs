@@ -86,8 +86,8 @@ namespace Web.Core.StartUp
                     Description = "API für Wörterbuch-Anwendung",
                     Contact = new OpenApiContact
                     {
-                        Name = "Dein Name",
-                        Email = "deine.email@example.com"
+                        Name = "Manuel Peise",
+                        Email = "manuel.p80@gmx.de"
                     }
                 });
 

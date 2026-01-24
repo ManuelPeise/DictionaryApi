@@ -1,0 +1,49 @@
+# Build artifacts
+**/bin/
+**/obj/
+**/out/
+
+# VS / VS Code
+.vs/
+.vscode/
+*.user
+*.suo
+*.sln.docstates
+
+# NuGet
+packages/
+*.nupkg
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Tests
+**/TestResults/
+
+# IDE
+*.swp
+*~
+*.DS_Store
+
+# Logs
+logs/
+*.log
+
+# Environment files
+.env
+.env.local
+
+# Documentation
+*.md
+docs/
+
+# CI/CD
+.github/
+azure-pipelines.yml
