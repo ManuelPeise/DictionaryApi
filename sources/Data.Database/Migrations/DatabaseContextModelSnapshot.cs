@@ -84,10 +84,6 @@ namespace Data.Database.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Salt")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -106,8 +102,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             ExpireDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            PasswordHash = "UGFzc0B3b3JkOTU2YWJjOTYtZWY1MC00ODQ4LWEzZTEtNzc2YzEwNjBkMmY2",
-                            Salt = "956abc96-ef50-4848-a3e1-776c1060d2f6",
+                            PasswordHash = "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         });
@@ -206,7 +201,7 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("DataSyncEnabled")
+                    b.Property<bool>("IsAutoDataSyncEnabled")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -215,6 +210,9 @@ namespace Data.Database.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("UseLocalDataStore")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
@@ -226,9 +224,10 @@ namespace Data.Database.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
-                            DataSyncEnabled = true,
+                            IsAutoDataSyncEnabled = true,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            UpdatedBy = ""
+                            UpdatedBy = "",
+                            UseLocalDataStore = false
                         });
                 });
 

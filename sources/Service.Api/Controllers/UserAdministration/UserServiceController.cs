@@ -21,5 +21,12 @@ namespace Service.Api.Controllers.UserAdministration
 
             return result;
         }
+
+        [HttpPost(Name = "UpdateCurrentUser")]
+        public async Task<CurrentUser?> UpdateCurrentUser([FromBody] CurrentUser updatedUser)
+        {
+            var result = await _userService.UpdateUserData(updatedUser);
+            return result;
+        }
     }
 }

@@ -2,7 +2,6 @@
 using Logic.Shared.Interfaces;
 using Logic.Shared.Models;
 using Microsoft.AspNetCore.Http;
-using System.Text;
 
 namespace Logic.Shared
 {
@@ -63,16 +62,5 @@ namespace Logic.Shared
 
             return currentUser;
         }
-
-        public string GetPasswordHash(string password, string salt)
-        {
-            var passwordBytes = Encoding.UTF8.GetBytes(password).ToList();
-            passwordBytes.AddRange(Encoding.UTF8.GetBytes(salt));
-
-            return Convert.ToBase64String(passwordBytes.ToArray());
-        }
-
-        
-
     }
 }

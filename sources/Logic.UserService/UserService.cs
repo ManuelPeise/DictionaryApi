@@ -54,9 +54,7 @@ namespace Logic.UserService
                     };
                 }
 
-                var passwordHash = _logicBase.GetPasswordHash(request.Password, userEntity.UserCredentials.Salt);
-
-                if (passwordHash != userEntity.UserCredentials.PasswordHash)
+                if (!PasswordHasher.VerifyPassword(request.Password, userEntity.UserCredentials.PasswordHash))
                 {
                     return new AuthenticationResult
                     {
@@ -138,10 +136,31 @@ namespace Logic.UserService
             }
         }
 
-        public async Task UpdateUserSettings()
+        public async Task<CurrentUser?> UpdateUserData(CurrentUser updatedUser)
         {
+            try
+            {
+                var currentUser = _logicBase.GetCurrentUser();
+                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
+                    user.EmailAddress == currentUser.EmailAddress);
+                
+                if (userEntity == null || userEntity.UpdatedAt > updatedUser.UpdatedAt)
+                {
+                    return null;
+                }
 
+                userEntity = updatedUser;
+                
+                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
+                
+                return await GetCurrentUserData();
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync("Could not update current user data.",
+                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+                return null;
+            }
         }
-
     }
 }

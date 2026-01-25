@@ -54,14 +54,14 @@ namespace Logic.UserService
                     UserRole = UserRoleEnum.User,
                     UserCredentials = new UserCredentialsEntity
                     {
-                        PasswordHash = _logicBase.GetPasswordHash(requestModel.Password, salt),
-                        Salt = salt,
+                        PasswordHash = PasswordHasher.HashPassword(requestModel.Password),
                         RefreshToken = null,
 
                     },
                     UserSettings = new UserSettingsEntity
                     {
-                         DataSyncEnabled = _userSettings.IsSyncEnabled,
+                        IsAutoDataSyncEnabled = _userSettings.IsSyncEnabled,
+                        UseLocalDataStore = _userSettings.UseLocalDataStore,
                     },
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System",

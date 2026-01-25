@@ -2,6 +2,7 @@
 {
     public class UserSettingsEntity : AEntityBase
     {
-        public bool DataSyncEnabled { get; set; }
+        public bool UseLocalDataStore { get; set; }
+        public bool IsAutoDataSyncEnabled { get; set; }
     }
 }

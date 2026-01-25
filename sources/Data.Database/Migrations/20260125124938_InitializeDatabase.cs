@@ -43,7 +43,6 @@ namespace Data.Database.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Salt = table.Column<string>(type: "longtext", nullable: false),
                     PasswordHash = table.Column<string>(type: "longtext", nullable: false),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: true),
                     ExpireDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -64,7 +63,8 @@ namespace Data.Database.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    DataSyncEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    UseLocalDataStore = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsAutoDataSyncEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -116,13 +116,13 @@ namespace Data.Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "UserCredentialsTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "ExpireDate", "PasswordHash", "RefreshToken", "Salt", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "UGFzc0B3b3JkOTU2YWJjOTYtZWY1MC00ODQ4LWEzZTEtNzc2YzEwNjBkMmY2", null, "956abc96-ef50-4848-a3e1-776c1060d2f6", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "ExpireDate", "PasswordHash", "RefreshToken", "UpdatedAt", "UpdatedBy" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
 
             migrationBuilder.InsertData(
                 table: "UserSettingsTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DataSyncEnabled", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IsAutoDataSyncEnabled", "UpdatedAt", "UpdatedBy", "UseLocalDataStore" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", false });
 
             migrationBuilder.InsertData(
                 table: "UserTable",

@@ -20,8 +20,6 @@ namespace Data.Database
             modelBuilder.ApplyConfiguration(new UserSeed());
             modelBuilder.ApplyConfiguration(new UserCredentialsSeed());
             modelBuilder.ApplyConfiguration(new UserSettingsSeed());
-
-           
         }
 
         public DbSet<UserEntity> UserTable { get; set; }
