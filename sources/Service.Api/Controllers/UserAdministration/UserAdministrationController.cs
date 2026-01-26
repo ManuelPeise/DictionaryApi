@@ -1,5 +1,4 @@
-﻿using Logic.Shared.Models;
-using Logic.UserService.Interfaces;
+﻿using Logic.UserService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models.Administration;
 

@@ -1,6 +1,6 @@
-﻿using Logic.Shared.Models;
-using Logic.UserService.Interfaces;
+﻿using Logic.UserService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Models.User;
 
 namespace Service.Api.Controllers.UserAdministration
 {
@@ -15,7 +15,7 @@ namespace Service.Api.Controllers.UserAdministration
 
         [ApiAuthentication]
         [HttpGet(Name = "GetCurrentUser")]
-        public async Task<CurrentUser?> GetCurrentUser()
+        public async Task<UserModel?> GetCurrentUser()
         {
             var result = await _userService.GetCurrentUserData();
 

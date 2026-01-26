@@ -2,7 +2,7 @@
 {
     public class UserSettings
     {
-        public bool IsSyncEnabled { get; set; }
+        public bool IsAutoDataSyncEnabled { get; set; }
         public bool UseLocalDataStore { get; set; }
 
     }

@@ -1,5 +1,5 @@
-﻿using Logic.Shared.Models;
-using Shared.Models.Authentication;
+﻿using Shared.Models.Authentication;
+using Shared.Models.User;
 
 namespace Logic.UserService.Interfaces
 {
@@ -7,8 +7,8 @@ namespace Logic.UserService.Interfaces
     {
         Task<AuthenticationResult> AuthenticateUser(AuthenticationRequest request);
         Task<bool> Logout(string idExternal);
-        Task<CurrentUser?> GetCurrentUserData();
-        Task UpdateProfile(CurrentUser updatedUser);
+        Task<UserModel?> GetCurrentUserData();
+        Task UpdateProfile(UserProfileUpdateRequest updatedUser);
         Task UpdatePassword(ChangePasswordRequest request);
     }
 }

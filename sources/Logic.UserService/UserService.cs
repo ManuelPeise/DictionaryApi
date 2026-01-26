@@ -1,11 +1,11 @@
 ﻿using Data.Database;
 using Logic.Shared;
 using Logic.Shared.Interfaces;
-using Logic.Shared.Models;
 using Logic.UserService.Interfaces;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Authentication;
+using Shared.Models.User;
 
 namespace Logic.UserService
 {
@@ -118,7 +118,7 @@ namespace Logic.UserService
             }
         }
 
-        public async Task<CurrentUser?> GetCurrentUserData()
+        public async Task<UserModel?> GetCurrentUserData()
         {
             try
             {
@@ -135,29 +135,36 @@ namespace Logic.UserService
             }
         }
 
-        public async Task UpdateProfile(CurrentUser updatedUser)
+        public async Task UpdateProfile(UserProfileUpdateRequest updatedUser)
         {
             try
             {
                 var currentUser = _logicBase.GetCurrentUser();
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.EmailAddress == updatedUser.EmailAddress);
+                    user.EmailAddress == updatedUser.EmailAddress, false);
                 
                 if (userEntity == null || userEntity.UpdatedAt > updatedUser.UpdatedAt)
                 {
                     return;
                 }
 
-                userEntity = updatedUser;
-                
+                userEntity.FirstName = updatedUser.FirstName;
+                userEntity.LastName = updatedUser.LastName;
+                userEntity.EmailAddress = updatedUser.EmailAddress;
+                userEntity.DateOfBirth = updatedUser.DateOfBirth;
+                userEntity.ProfileImage = updatedUser.ProfileImage;
+               
                 await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
-                
+
+                return;
             }
             catch (Exception exception)
             {
                 await _logger.LogMessageAsync("Could not update current user data.",
                     LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
             }
+
+            return;
         }
 
         public async Task UpdatePassword(ChangePasswordRequest request)

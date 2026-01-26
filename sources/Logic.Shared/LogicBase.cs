@@ -1,7 +1,8 @@
 ﻿using Data.Database;
 using Logic.Shared.Interfaces;
-using Logic.Shared.Models;
 using Microsoft.AspNetCore.Http;
+using Shared.Models.Settings;
+using Shared.Models.User;
 
 namespace Logic.Shared
 {
@@ -16,7 +17,7 @@ namespace Logic.Shared
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public CurrentUser GetCurrentUser(bool? includeDetails = false)
+        public UserModel GetCurrentUser(bool? includeDetails = false)
         {
             var claims = _httpContextAccessor.HttpContext?.User?.Claims;
 
@@ -40,7 +41,7 @@ namespace Logic.Shared
                 _dbContext.UserSettingsTable.FirstOrDefault(us => us.Id == userEntity.UserSettingsId);
             }
 
-            var currentUser = new CurrentUser
+            var currentUser = new UserModel
             {
                 Id = userEntity.Id,
                 UserIdExternal = userEntity.UserIdExternal,
@@ -51,9 +52,18 @@ namespace Logic.Shared
                 DateOfBirth = userEntity.DateOfBirth,
                 UserRole = userEntity.UserRole,
                 UserCredentialsId = userEntity.UserCredentialsId,
-                UserCredentials = userEntity.UserCredentials,
+                UserCredentials = new UserCredentials
+                {
+                    PasswordHash = userEntity.UserCredentials?.PasswordHash ?? string.Empty,
+                    RefreshToken = userEntity.UserCredentials?.RefreshToken,
+                    ExpireDate = userEntity.UserCredentials?.ExpireDate ?? DateTime.MinValue
+                },
                 UserSettingsId = userEntity.UserSettingsId,
-                UserSettings = userEntity.UserSettings,
+                UserSettings = new UserSettings
+                {
+                    IsAutoDataSyncEnabled = userEntity.UserSettings?.IsAutoDataSyncEnabled ?? false,
+                    UseLocalDataStore = userEntity.UserSettings?.UseLocalDataStore ?? false
+                },
                 CreatedAt = userEntity.CreatedAt,
                 CreatedBy = userEntity.CreatedBy,
                 UpdatedAt = userEntity.UpdatedAt,

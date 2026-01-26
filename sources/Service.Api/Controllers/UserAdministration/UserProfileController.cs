@@ -1,7 +1,7 @@
-﻿using Logic.Shared.Models;
-using Logic.UserService.Interfaces;
+﻿using Logic.UserService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models.Authentication;
+using Shared.Models.User;
 
 namespace Service.Api.Controllers.UserAdministration
 {
@@ -16,7 +16,7 @@ namespace Service.Api.Controllers.UserAdministration
 
         [ApiAuthentication]
         [HttpPost(Name = "UpdateProfile")]
-        public async Task UpdateProfile([FromBody] CurrentUser updatedUser)
+        public async Task UpdateProfile([FromBody] UserProfileUpdateRequest updatedUser)
         {
             await _userService.UpdateProfile(updatedUser);
             

@@ -60,7 +60,7 @@ namespace Logic.UserService
                     },
                     UserSettings = new UserSettingsEntity
                     {
-                        IsAutoDataSyncEnabled = _userSettings.IsSyncEnabled,
+                        IsAutoDataSyncEnabled = _userSettings.IsAutoDataSyncEnabled,
                         UseLocalDataStore = _userSettings.UseLocalDataStore,
                     },
                     CreatedAt = DateTime.UtcNow,
