@@ -12,7 +12,15 @@
 
             app.UseCors(corsPolicy);
 
-            app.UseHttpsRedirection();
+            // Only use HTTPS redirection when not running in Docker
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")))
+            {
+                // Running in Docker - skip HTTPS redirection
+            }
+            else
+            {
+                app.UseHttpsRedirection();
+            }
 
             app.UseAuthentication();
             app.UseAuthorization();

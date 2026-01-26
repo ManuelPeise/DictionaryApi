@@ -8,6 +8,7 @@ namespace Logic.UserService.Interfaces
         Task<AuthenticationResult> AuthenticateUser(AuthenticationRequest request);
         Task<bool> Logout(string idExternal);
         Task<CurrentUser?> GetCurrentUserData();
-        Task<CurrentUser?> UpdateUserData(CurrentUser updatedUser);
+        Task UpdateProfile(CurrentUser updatedUser);
+        Task UpdatePassword(ChangePasswordRequest request);
     }
 }

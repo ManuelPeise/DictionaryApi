@@ -31,6 +31,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
+      DOTNET_RUNNING_IN_CONTAINER: "true"
       ConnectionStrings__DictionaryAppDb: "Server=mysql;Port=3306;Database=DictionaryAppDb;User=root;Password=root;"
       Jwt__SecurityKey: "YourSuperSecretKeyForJWTTokenGeneration123!@#"
       Jwt__Issuer: "DictionaryApi"

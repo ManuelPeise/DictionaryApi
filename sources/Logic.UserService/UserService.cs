@@ -33,7 +33,7 @@ namespace Logic.UserService
         {
             try
             {
-                if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password) || string.IsNullOrEmpty(request.IdExternal))
+                if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
                 {
                     return new AuthenticationResult
                     {
@@ -42,8 +42,7 @@ namespace Logic.UserService
                 }
 
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.UserIdExternal == request.IdExternal &&
-                    user.EmailAddress == request.UserName,
+                    user.EmailAddress == request.Email,
                     false, x => x.UserCredentials);
 
                 if (userEntity == null || userEntity?.UserCredentials == null)
@@ -136,30 +135,59 @@ namespace Logic.UserService
             }
         }
 
-        public async Task<CurrentUser?> UpdateUserData(CurrentUser updatedUser)
+        public async Task UpdateProfile(CurrentUser updatedUser)
         {
             try
             {
                 var currentUser = _logicBase.GetCurrentUser();
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.EmailAddress == currentUser.EmailAddress);
+                    user.EmailAddress == updatedUser.EmailAddress);
                 
                 if (userEntity == null || userEntity.UpdatedAt > updatedUser.UpdatedAt)
                 {
-                    return null;
+                    return;
                 }
 
                 userEntity = updatedUser;
                 
                 await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
                 
-                return await GetCurrentUserData();
             }
             catch (Exception exception)
             {
                 await _logger.LogMessageAsync("Could not update current user data.",
                     LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
-                return null;
+            }
+        }
+
+        public async Task UpdatePassword(ChangePasswordRequest request)
+        {
+            try
+            {
+                var currentUser = _logicBase.GetCurrentUser();
+                
+                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
+                    user.UserIdExternal == request.IdExternal, false, x => x.UserCredentials);
+
+                if (userEntity == null || userEntity.UserCredentials == null || !PasswordHasher.VerifyPassword(request.CurrentPassword, userEntity.UserCredentials.PasswordHash))
+                {
+                    return;
+                }
+
+                if (request.NewPassword != request.PasswordReplication)
+                {
+                    return;
+                }
+
+                userEntity.UserCredentials.PasswordHash = PasswordHasher.HashPassword(request.NewPassword);
+
+                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
+
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync("Could not update current user data.",
+                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
             }
         }
     }
