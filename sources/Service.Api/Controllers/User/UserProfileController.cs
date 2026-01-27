@@ -1,9 +1,10 @@
 ﻿using Logic.UserService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models.Authentication;
+using Shared.Models.Settings;
 using Shared.Models.User;
 
-namespace Service.Api.Controllers.UserAdministration
+namespace Service.Api.Controllers.User
 {
     public class UserProfileController:ApiControllerBase
     {
@@ -28,6 +29,13 @@ namespace Service.Api.Controllers.UserAdministration
         {
             await _userService.UpdatePassword(request);
 
+        }
+
+        [ApiAuthentication]
+        [HttpPost(Name = "UpdateSettings")]
+        public async Task UpdateSettings([FromBody] UserSettingsUpdateRequest updatedSettings)
+        {
+            await _userService.UpdateUserSettings(updatedSettings);
         }
     }
 }

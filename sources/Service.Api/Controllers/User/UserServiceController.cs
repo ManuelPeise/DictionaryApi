@@ -1,8 +1,9 @@
 ﻿using Logic.UserService.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Models.Settings;
 using Shared.Models.User;
 
-namespace Service.Api.Controllers.UserAdministration
+namespace Service.Api.Controllers.User
 {
     public class UserServiceController : ApiControllerBase
     {
@@ -21,7 +22,5 @@ namespace Service.Api.Controllers.UserAdministration
 
             return result;
         }
-
-       
     }
 }

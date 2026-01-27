@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models.Administration;
 
-namespace Service.Api.Controllers.UserAdministration
+namespace Service.Api.Controllers.User
 {
     public class UserAdministrationController : ApiControllerBase
     {

@@ -5,6 +5,7 @@ using Logic.UserService.Interfaces;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Authentication;
+using Shared.Models.Settings;
 using Shared.Models.User;
 
 namespace Logic.UserService
@@ -142,7 +143,7 @@ namespace Logic.UserService
                 var currentUser = _logicBase.GetCurrentUser();
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
                     user.EmailAddress == updatedUser.EmailAddress, false);
-                
+
                 if (userEntity == null || userEntity.UpdatedAt > updatedUser.UpdatedAt)
                 {
                     return;
@@ -153,7 +154,7 @@ namespace Logic.UserService
                 userEntity.EmailAddress = updatedUser.EmailAddress;
                 userEntity.DateOfBirth = updatedUser.DateOfBirth;
                 userEntity.ProfileImage = updatedUser.ProfileImage;
-               
+
                 await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
 
                 return;
@@ -172,7 +173,7 @@ namespace Logic.UserService
             try
             {
                 var currentUser = _logicBase.GetCurrentUser();
-                
+
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
                     user.UserIdExternal == request.IdExternal, false, x => x.UserCredentials);
 
@@ -194,6 +195,32 @@ namespace Logic.UserService
             catch (Exception exception)
             {
                 await _logger.LogMessageAsync("Could not update current user data.",
+                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+            }
+        }
+
+        public async Task UpdateUserSettings(UserSettingsUpdateRequest updatedSettings)
+        {
+            try
+            {
+                var currentUser = _logicBase.GetCurrentUser();
+
+                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
+                    user.EmailAddress == currentUser.EmailAddress, false, x => x.UserSettings);
+
+                if (userEntity == null || userEntity.UserSettings == null || userEntity.UpdatedAt > updatedSettings.UpdatedAt)
+                {
+                    return;
+                }
+
+                userEntity.UserSettings.IsAutoDataSyncEnabled = updatedSettings.IsAutoDataSyncEnabled;
+                userEntity.UserSettings.UseLocalDataStore = updatedSettings.UseLocalDataStore;
+
+                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync("Could not update current user settings.",
                     LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
             }
         }

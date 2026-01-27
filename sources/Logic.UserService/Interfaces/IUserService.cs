@@ -1,4 +1,5 @@
 ﻿using Shared.Models.Authentication;
+using Shared.Models.Settings;
 using Shared.Models.User;
 
 namespace Logic.UserService.Interfaces
@@ -10,5 +11,6 @@ namespace Logic.UserService.Interfaces
         Task<UserModel?> GetCurrentUserData();
         Task UpdateProfile(UserProfileUpdateRequest updatedUser);
         Task UpdatePassword(ChangePasswordRequest request);
+        Task UpdateUserSettings(UserSettingsUpdateRequest updatedSettings);
     }
 }
