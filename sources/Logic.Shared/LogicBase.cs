@@ -1,6 +1,7 @@
 ﻿using Data.Database;
 using Logic.Shared.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Shared.Enums;
 using Shared.Models.Settings;
 using Shared.Models.User;
 
@@ -61,6 +62,7 @@ namespace Logic.Shared
                 UserSettingsId = userEntity.UserSettingsId,
                 UserSettings = new UserSettings
                 {
+                    Culture = userEntity.UserSettings?.Culture ?? CultureEnum.English,
                     IsAutoDataSyncEnabled = userEntity.UserSettings?.IsAutoDataSyncEnabled ?? false,
                     UseLocalDataStore = userEntity.UserSettings?.UseLocalDataStore ?? false
                 },

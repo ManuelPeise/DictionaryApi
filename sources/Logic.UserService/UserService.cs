@@ -213,6 +213,7 @@ namespace Logic.UserService
                     return;
                 }
 
+                userEntity.UserSettings.Culture = updatedSettings.Culture;
                 userEntity.UserSettings.IsAutoDataSyncEnabled = updatedSettings.IsAutoDataSyncEnabled;
                 userEntity.UserSettings.UseLocalDataStore = updatedSettings.UseLocalDataStore;
 

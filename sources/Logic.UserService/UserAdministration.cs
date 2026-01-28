@@ -60,6 +60,7 @@ namespace Logic.UserService
                     },
                     UserSettings = new UserSettingsEntity
                     {
+                        Culture = _userSettings.Culture,
                         IsAutoDataSyncEnabled = _userSettings.IsAutoDataSyncEnabled,
                         UseLocalDataStore = _userSettings.UseLocalDataStore,
                     },

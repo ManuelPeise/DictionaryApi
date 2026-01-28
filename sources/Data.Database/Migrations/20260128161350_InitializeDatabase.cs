@@ -63,6 +63,7 @@ namespace Data.Database.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Culture = table.Column<int>(type: "int", nullable: false),
                     UseLocalDataStore = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsAutoDataSyncEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -121,8 +122,8 @@ namespace Data.Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "UserSettingsTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IsAutoDataSyncEnabled", "UpdatedAt", "UpdatedBy", "UseLocalDataStore" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", false });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Culture", "IsAutoDataSyncEnabled", "UpdatedAt", "UpdatedBy", "UseLocalDataStore" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 0, true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", false });
 
             migrationBuilder.InsertData(
                 table: "UserTable",

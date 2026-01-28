@@ -2,17 +2,14 @@
 using Data.Database.Entities.User;
 using Data.Database.Seeds;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Shared.Models.Settings;
 
 namespace Data.Database
 {
     public class DatabaseContext : DbContext
     {
-        private readonly IOptions<UserSettings> _apiSettings;
-        public DatabaseContext(DbContextOptions<DatabaseContext> options, IOptions<UserSettings> apiSettings) : base(options)
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            _apiSettings = apiSettings;
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,6 +1,7 @@
 ﻿using Data.Database.Entities.User;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Shared.Enums;
 using System.Globalization;
 
 namespace Data.Database.Seeds
@@ -15,6 +16,7 @@ namespace Data.Database.Seeds
                 new UserSettingsEntity
                 {
                     Id = 1,
+                    Culture = CultureEnum.English,
                     IsAutoDataSyncEnabled = true,
                     UseLocalDataStore = false,
                     CreatedAt = timeStamp,
