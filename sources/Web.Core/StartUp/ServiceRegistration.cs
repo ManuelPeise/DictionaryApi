@@ -4,12 +4,14 @@ using Logic.Shared.DI;
 using Logic.UserService.DI;
 using Logic.Words.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Shared.Models.Authentication;
 using Shared.Models.Settings;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace Web.Core.StartUp
 {
@@ -19,6 +21,28 @@ namespace Web.Core.StartUp
         {
             services.Configure<JwtTokenModel>(configuration.GetSection("Jwt"));
             services.Configure<UserSettings>(configuration.GetSection("Settings"));
+
+            services.AddRateLimiter(options =>
+            {
+                options.AddFixedWindowLimiter("fixedRateLimit", limiterOptions =>
+                {
+                    limiterOptions.PermitLimit = 5; 
+                    limiterOptions.Window = TimeSpan.FromMinutes(1);
+                    limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    limiterOptions.QueueLimit = 2;
+                });
+
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter("GlobalLimiter", _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 100,
+                        Window = TimeSpan.FromMinutes(1),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    }));
+
+                options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            });
 
             services.AddCors(options =>
             {
