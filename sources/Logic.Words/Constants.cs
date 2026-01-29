@@ -3,7 +3,7 @@
     internal class Constants
     {
         internal const string KaikkiDumpFileUrl = "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz";
-        internal const string KaikkiBackupFolder = "{RootPath}_Kaikki_Backup";
+      
         internal const string KaikkiFileNameTemplate = "{Type}_Kaikki_{TimeStamp}.json";
         internal const string KaikkiJsonBackupFileName = "Kaikki_Backup.json";
         internal const string DumpFilePrefix = "Dump";

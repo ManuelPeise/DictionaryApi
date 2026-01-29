@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Shared.Models;
 using Shared.Models.Authentication;
 using Shared.Models.Settings;
 using System.Text;
@@ -21,6 +22,7 @@ namespace Web.Core.StartUp
         {
             services.Configure<JwtTokenModel>(configuration.GetSection("Jwt"));
             services.Configure<UserSettings>(configuration.GetSection("Settings"));
+            services.Configure<FileSystemConfiguration>(configuration.GetSection("FileSystemConfiguration"));
 
             services.AddRateLimiter(options =>
             {

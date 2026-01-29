@@ -1,5 +1,7 @@
 ﻿using Logic.Words.Interfaces;
+using Microsoft.Extensions.Options;
 using Shared.Enums;
+using Shared.Models;
 using Shared.Models.Kaikki;
 using Shared.Models.KaikkiJsonModels;
 using System.Globalization;
@@ -10,8 +12,11 @@ namespace Logic.Words
 {
     public class KaikkiWordService : IKakkiWordService
     {
-        public KaikkiWordService()
+        private readonly FileSystemConfiguration _fileSystemConfiguration;
+
+        public KaikkiWordService(IOptions<FileSystemConfiguration> options)
         {
+            _fileSystemConfiguration = options.Value;
         }
 
         public async Task<KaikkiJsonModel> ExecuteDumpService(DateTime timeStamp, int fileDateMonthOffset = 1)
@@ -26,7 +31,7 @@ namespace Logic.Words
             {
                 EnsureBackupDirectoryExists();
 
-                var backupFiles = (from file in Directory.GetFiles(GetBackupFolderPath(), "*.json")
+                var backupFiles = (from file in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,_fileSystemConfiguration.KaikkiBackupFolder), "*.json")
                                    let fileNameParts = Path.GetFileNameWithoutExtension(file).Split('_')
                                    group file by new { Type = fileNameParts[0], Date = GetParsedDate(fileNameParts.Last()) } into fileGroup
                                    where fileGroup.Key.Type == Constants.DumpFilePrefix
@@ -47,7 +52,7 @@ namespace Logic.Words
                     }
                 }
 
-                var spellCheckers = SpellCheckerFactory.GetSpellCheckers();
+                var spellCheckers = SpellCheckerFactory.GetSpellCheckers(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,_fileSystemConfiguration.SpellCkeckerFolder));
 
                 using (var client = new HttpClient())
                 using (var response = await client.GetAsync(Constants.KaikkiDumpFileUrl, HttpCompletionOption.ResponseHeadersRead))
@@ -108,7 +113,7 @@ namespace Logic.Words
             {
                 EnsureBackupDirectoryExists();
 
-                var backupFiles = (from file in Directory.GetFiles(GetBackupFolderPath(), "*.json")
+                var backupFiles = (from file in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,_fileSystemConfiguration.KaikkiBackupFolder, "*.json"))
                                    let fileNameParts = Path.GetFileNameWithoutExtension(file).Split('_')
                                    group file by new { Type = fileNameParts[0], Date = GetParsedDate(fileNameParts.Last()) } into fileGroup
                                    where fileGroup.Key.Type == extractionType.ToString()
@@ -129,7 +134,7 @@ namespace Logic.Words
                     }
                 }
 
-                var spellCheckers = SpellCheckerFactory.GetSpellCheckers();
+                var spellCheckers = SpellCheckerFactory.GetSpellCheckers(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _fileSystemConfiguration.SpellCkeckerFolder));
 
                 var requestUrl = GetExtractionRequestUrl(extractionType);
 
@@ -179,13 +184,13 @@ namespace Logic.Words
 
         public async Task<KaikkiJsonModel?> LoadKaikkiBackupFromJson()
         {
-            var folderPath = GetBackupFolderPath();
-            var filePath = Path.Combine(folderPath, Constants.KaikkiJsonBackupFileName);
+            var filePath = Path.Combine(_fileSystemConfiguration.KaikkiBackupFolder, Constants.KaikkiJsonBackupFileName);
 
-            if(File.Exists(filePath))
+            if (File.Exists(filePath))
             {
                 var model = await LoadJsonModel<KaikkiJsonModel>(filePath);
-                if(model != null)
+
+                if (model != null)
                 {
                     return model;
                 }
@@ -196,7 +201,7 @@ namespace Logic.Words
 
         public async Task SaveKaikkiBackupJson(KaikkiJsonModel dumpFileModel)
         {
-            await SaveJson(dumpFileModel, Constants.KaikkiJsonBackupFileName);
+            await SaveJson(dumpFileModel, Path.Combine(AppDomain.CurrentDomain.BaseDirectory, Constants.KaikkiJsonBackupFileName));
         }
 
         private LanguageTypeEnum GetLanguage(string languageCode)
@@ -235,22 +240,22 @@ namespace Logic.Words
             {
                 case "adj":
                 case "adjective":
-                    return "Adjectiv";
+                    return "adjective";
                 case "adv":
                 case "adverb":
-                    return "Adverb";
+                    return "adverb";
                 case "article":
-                    return "Artikel";
+                    return "article";
                 case "noun":
-                    return "Nomen";
+                    return "noun";
                 case "verb":
-                    return "Verb";
+                    return "verb";
                 case "preposition":
-                    return "Präposition";
+                    return "preposition";
                 case "pronoun":
-                    return "Pronomen";
+                    return "pronoun";
                 case "proper noun":
-                    return "Eigenname";
+                    return "proper noun";
                 default:
                     return string.Empty;
             }
@@ -382,19 +387,12 @@ namespace Logic.Words
 
         private void EnsureBackupDirectoryExists()
         {
-            var folderPath = GetBackupFolderPath();
+            var folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _fileSystemConfiguration.KaikkiBackupFolder);
 
             if (!Directory.Exists(folderPath))
             {
                 Directory.CreateDirectory(folderPath);
             }
-        }
-
-        private string GetBackupFolderPath()
-        {
-            var folderPath = Constants.KaikkiBackupFolder.Replace("{RootPath}_", AppDomain.CurrentDomain.BaseDirectory);
-
-            return folderPath;
         }
 
         private async Task SaveJson<T>(T model, string fileName)
@@ -405,7 +403,7 @@ namespace Logic.Words
                 Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
             });
 
-            var folderPath = GetBackupFolderPath();
+            var folderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _fileSystemConfiguration.KaikkiBackupFolder);
             var filePath = Path.Combine(folderPath, fileName);
             await File.WriteAllTextAsync(filePath, json);
         }

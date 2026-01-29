@@ -52,14 +52,10 @@ namespace Logic.Words
                 CleanupExtractions(germanWordExtraction);
                 CleanupExtractions(danishWordExtraction);
 
-                // load existing dump file model from json and update with new data
-                var backupDumpModel = await _kakkiWordService.LoadKaikkiBackupFromJson();
-
-
-                // TODO: Merge logic to avoid duplicates
+                var cleanedDumpFileModel = GetCleanedDumpFileModel(dumpFileModel);
 
                 // save updated dump file model with translations as json
-                await _kakkiWordService.SaveKaikkiBackupJson(dumpFileModel);
+                await _kakkiWordService.SaveKaikkiBackupJson(cleanedDumpFileModel);
 
                 stopWatch.Stop();
                 var elapsedTime = $"Minutes: {stopWatch.Elapsed.TotalMinutes:F2}, Seconds: {stopWatch.Elapsed.TotalSeconds:F2}";
@@ -79,10 +75,108 @@ namespace Logic.Words
             }
         }
 
+        private KaikkiJsonModel GetCleanedDumpFileModel(KaikkiJsonModel dumpFileModel)
+        {
+            var model = new KaikkiJsonModel
+            {
+                TimeStamp = dumpFileModel.TimeStamp,
+                Source = dumpFileModel.Source,
+                Licence = dumpFileModel.Licence,
+                Count = 0,
+                Data = new List<KaikkiJsonDataModel>()
+            };
+
+            if (dumpFileModel?.Data == null || !dumpFileModel.Data.Any())
+            {
+                return model;
+            }
+
+            var processedEntries = new HashSet<string>(StringComparer.Ordinal);
+
+            foreach (var set in dumpFileModel.Data)
+            {
+                if (set == null)
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(set.PartOfSpeech) || string.IsNullOrEmpty(set.LanguageCode))
+                {
+                    continue;
+                }
+
+                if (set.Translations == null || !set.Translations.Any())
+                {
+                    continue;
+                }
+
+                var entryKey = $"{set.Word}|{set.PartOfSpeech}";
+                if (!processedEntries.Add(entryKey))
+                {
+                    continue;
+                }
+
+                var sourceLanguage = GetLanguageTypeFromLanguageCode(set.LanguageCode);
+                var cleanedTranslations = new List<WordTranslationModel>();
+
+                foreach (var translation in set.Translations)
+                {
+                    if (translation == null || string.IsNullOrEmpty(translation.Word) || string.IsNullOrEmpty(translation.LanguageCode))
+                    {
+                        continue;
+                    }
+
+                    var translationLanguage = GetLanguageTypeFromLanguageCode(translation.LanguageCode);
+
+                    cleanedTranslations.Add(new WordTranslationModel
+                    {
+                        Word = GetCapitalizedWord(translation.Word, set.PartOfSpeech, translationLanguage),
+                        Ipa = translation.Ipa,
+                        Sentence = translation.Sentence,
+                        LanguageCode = translation.LanguageCode,
+                        LanguageName = translation.LanguageName,
+                        Synonyms = translation.Synonyms != null ? new List<string>(translation.Synonyms) : null
+                    });
+                }
+
+                if (!cleanedTranslations.Any())
+                {
+                    continue;
+                }
+
+                model.Data.Add(new KaikkiJsonDataModel
+                {
+                    PartOfSpeech = set.PartOfSpeech,
+                    Word = GetCapitalizedWord(set.Word, set.PartOfSpeech, sourceLanguage),
+                    LanguageName = set.LanguageName,
+                    LanguageCode = set.LanguageCode,
+                    Ipa = set.Ipa,
+                    Synonyms = set.Synonyms != null ? new List<string>(set.Synonyms) : null,
+                    Translations = cleanedTranslations
+                });
+            }
+
+            model.Count = model.Data.Count;
+            return model;
+        }
+
+        private string GetCapitalizedWord(string word, string partOfSpeech, LanguageEnum language)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+            {
+                return word;
+            }
+
+            if (partOfSpeech == "proper noun" || (partOfSpeech == "noun" && language == LanguageEnum.German))
+            {
+                return word.Length == 1 ? char.ToUpperInvariant(word[0]).ToString() : char.ToUpperInvariant(word[0]) + word.Substring(1);
+            }
+
+            return word;
+        }
+
         private void MapExtractionDataToRelatedTranslations(KaikkiJsonModel dumpModel, Dictionary<string, KaikkiJsonDataExtract> extractionData, string languageCode)
         {
-            var languageType = languageCode == "de" ? LanguageTypeEnum.German : LanguageTypeEnum.Danish;
-
             dumpModel.Data.ForEach(dataSet =>
             {
                 dataSet.Translations?.ForEach(translation =>
@@ -98,7 +192,21 @@ namespace Logic.Words
 
         private void CleanupExtractions(Dictionary<string, KaikkiJsonDataExtract>? extractionData)
         {
-            extractionData = null;
+            extractionData?.Clear();
+        }
+
+        private LanguageEnum GetLanguageTypeFromLanguageCode(string languageCode)
+        {
+            switch (languageCode)
+            {
+                case "en":
+                    return LanguageEnum.English;
+                case "de":
+                    return LanguageEnum.German;
+                case "da":
+                    return LanguageEnum.Danish;
+                default: return LanguageEnum.Unknown;
+            }
         }
     }
 }

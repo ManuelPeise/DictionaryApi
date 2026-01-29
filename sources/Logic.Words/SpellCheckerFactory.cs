@@ -7,10 +7,10 @@ namespace Logic.Words
     {
         private static string _directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SpellChecker");
 
-        internal static Dictionary<LanguageTypeEnum, SpellChecker> GetSpellCheckers(List<LanguageTypeEnum>? languages = null)
+        internal static Dictionary<LanguageTypeEnum, SpellChecker> GetSpellCheckers(string directory, List<LanguageTypeEnum>? languages = null)
         {
             var dictionary = new Dictionary<LanguageTypeEnum, SpellChecker>();
-            var fileModels = GetFileModels(languages);
+            var fileModels = GetFileModels(directory, languages);
 
             foreach (var key in fileModels.Keys)
             {
@@ -26,9 +26,9 @@ namespace Logic.Words
         }
 
 
-        private static Dictionary<LanguageTypeEnum, DictionaryFileModel> GetFileModels(List<LanguageTypeEnum>? languages = null)
+        private static Dictionary<LanguageTypeEnum, DictionaryFileModel> GetFileModels(string directory, List<LanguageTypeEnum>? languages = null)
         {
-            var files = Directory.GetFiles(_directory);
+            var files = Directory.GetFiles(directory);
 
             var groups = (from file in files
                           let firstFileNamePart = Path.GetFileNameWithoutExtension(file).Split('_').First()
