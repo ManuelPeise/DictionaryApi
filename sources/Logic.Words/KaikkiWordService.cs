@@ -113,7 +113,7 @@ namespace Logic.Words
             {
                 EnsureBackupDirectoryExists();
 
-                var backupFiles = (from file in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,_fileSystemConfiguration.KaikkiBackupFolder, "*.json"))
+                var backupFiles = (from file in Directory.GetFiles(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,_fileSystemConfiguration.KaikkiBackupFolder), "*.json")
                                    let fileNameParts = Path.GetFileNameWithoutExtension(file).Split('_')
                                    group file by new { Type = fileNameParts[0], Date = GetParsedDate(fileNameParts.Last()) } into fileGroup
                                    where fileGroup.Key.Type == extractionType.ToString()

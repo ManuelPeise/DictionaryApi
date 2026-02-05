@@ -1,20 +1,25 @@
 ﻿using Data.Database;
+using Data.Database.Entities.Vocabulary;
 using Logic.Shared;
 using Logic.Words.Interfaces;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Shared.Enums;
 using Shared.Models.KaikkiJsonModels;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Logic.Words
 {
     public class WordService : IWordService
     {
         private readonly IKakkiWordService _kakkiWordService;
+        private readonly IWordUnitOfWork _wordUnitOfWork;
         private readonly Logger<WordService> _logger;
 
-        public WordService(DatabaseContext databaseContext, IKakkiWordService kakkiWordService)
+        public WordService(DatabaseContext databaseContext, IKakkiWordService kakkiWordService, IWordUnitOfWork wordUnitOfWork)
         {
             _kakkiWordService = kakkiWordService;
+            _wordUnitOfWork = wordUnitOfWork;
             _logger = new Logger<WordService>(databaseContext);
         }
 
@@ -44,18 +49,13 @@ namespace Logic.Words
 
                 var danishWordExtraction = await _kakkiWordService.GetExtratctions(KaikkiExtractionTypeEnum.DanishExtractions, timeStamp, 1);
 
-                // map ipa and synonyms to translations
-                MapExtractionDataToRelatedTranslations(dumpFileModel, germanWordExtraction, "de");
-                MapExtractionDataToRelatedTranslations(dumpFileModel, danishWordExtraction, "da");
+                var vocabularyEntities = await GetVocabularyEntities(dumpFileModel, germanWordExtraction, danishWordExtraction);
+
+                await SaveVocabularies(vocabularyEntities);
 
                 // cleanup to free memory
                 CleanupExtractions(germanWordExtraction);
                 CleanupExtractions(danishWordExtraction);
-
-                var cleanedDumpFileModel = GetCleanedDumpFileModel(dumpFileModel);
-
-                // save updated dump file model with translations as json
-                await _kakkiWordService.SaveKaikkiBackupJson(cleanedDumpFileModel);
 
                 stopWatch.Stop();
                 var elapsedTime = $"Minutes: {stopWatch.Elapsed.TotalMinutes:F2}, Seconds: {stopWatch.Elapsed.TotalSeconds:F2}";
@@ -75,92 +75,94 @@ namespace Logic.Words
             }
         }
 
-        private KaikkiJsonModel GetCleanedDumpFileModel(KaikkiJsonModel dumpFileModel)
+        private async Task<List<VocabularyEntity>> GetVocabularyEntities(
+            KaikkiJsonModel model,
+            Dictionary<string, KaikkiJsonDataExtract> germanWordExtraction,
+            Dictionary<string, KaikkiJsonDataExtract> danishWordExtraction)
         {
-            var model = new KaikkiJsonModel
+            var entities = new List<VocabularyEntity>();
+
+            foreach (var entry in model.Data)
             {
-                TimeStamp = dumpFileModel.TimeStamp,
-                Source = dumpFileModel.Source,
-                Licence = dumpFileModel.Licence,
-                Count = 0,
-                Data = new List<KaikkiJsonDataModel>()
-            };
+                var partOfSpeachId = await _wordUnitOfWork.GetPartOfSpeachId(entry.PartOfSpeech);
 
-            if (dumpFileModel?.Data == null || !dumpFileModel.Data.Any())
-            {
-                return model;
-            }
-
-            var processedEntries = new HashSet<string>(StringComparer.Ordinal);
-
-            foreach (var set in dumpFileModel.Data)
-            {
-                if (set == null)
+                if (string.IsNullOrEmpty(entry.PartOfSpeech) ||
+                    string.IsNullOrEmpty(entry.LanguageCode) ||
+                    partOfSpeachId == null ||
+                    entry.Translations == null)
                 {
                     continue;
                 }
 
-                if (string.IsNullOrEmpty(set.PartOfSpeech) || string.IsNullOrEmpty(set.LanguageCode))
+                var vocabularyGuid = Guid.NewGuid();
+
+                var languageId = await _wordUnitOfWork.GetLanguageId(GetLanguageTypeFromLanguageCode(entry.LanguageCode));
+
+                if (languageId == null)
                 {
                     continue;
                 }
 
-                if (set.Translations == null || !set.Translations.Any())
+                var translations = new List<TranslationEntity>
                 {
-                    continue;
-                }
-
-                var entryKey = $"{set.Word}|{set.PartOfSpeech}";
-                if (!processedEntries.Add(entryKey))
-                {
-                    continue;
-                }
-
-                var sourceLanguage = GetLanguageTypeFromLanguageCode(set.LanguageCode);
-                var cleanedTranslations = new List<WordTranslationModel>();
-
-                foreach (var translation in set.Translations)
-                {
-                    if (translation == null || string.IsNullOrEmpty(translation.Word) || string.IsNullOrEmpty(translation.LanguageCode))
+                    new TranslationEntity
                     {
-                        continue;
+                        VocabularyGuid = vocabularyGuid,
+                        LanguageId = (int)languageId,
+                        Word = GetCapitalizedWord(entry.Word, entry.PartOfSpeech, GetLanguageTypeFromLanguageCode(entry.LanguageCode)),
+                        Ipa = entry.Ipa ?? string.Empty,
+                        Synonyms = entry.Synonyms != null ? string.Join(", ", entry.Synonyms) : string.Empty
                     }
+                };
 
-                    var translationLanguage = GetLanguageTypeFromLanguageCode(translation.LanguageCode);
+                foreach (var t in entry.Translations)
+                {
+                    var extractions = GetExtractions(t.LanguageCode, germanWordExtraction, danishWordExtraction);
+                    var translationEntity = await GetTranslationEntity(t, entry.PartOfSpeech, vocabularyGuid, extractions);
 
-                    cleanedTranslations.Add(new WordTranslationModel
+                    if (translationEntity != null)
                     {
-                        Word = GetCapitalizedWord(translation.Word, set.PartOfSpeech, translationLanguage),
-                        Ipa = translation.Ipa,
-                        Sentence = translation.Sentence,
-                        LanguageCode = translation.LanguageCode,
-                        LanguageName = translation.LanguageName,
-                        Synonyms = translation.Synonyms != null ? new List<string>(translation.Synonyms) : null
-                    });
+                        translations.Add(translationEntity);
+                    }
                 }
 
-                if (!cleanedTranslations.Any())
+                var entity = new VocabularyEntity
                 {
-                    continue;
-                }
+                    VocabularyGuid = vocabularyGuid,
+                    Topic = string.Empty,
+                    PartOfSpeachId = (int)partOfSpeachId,
+                    Translations = translations ?? new List<TranslationEntity>()
+                };
 
-                model.Data.Add(new KaikkiJsonDataModel
+
+                if (entity.Translations.Any())
                 {
-                    PartOfSpeech = set.PartOfSpeech,
-                    Word = GetCapitalizedWord(set.Word, set.PartOfSpeech, sourceLanguage),
-                    LanguageName = set.LanguageName,
-                    LanguageCode = set.LanguageCode,
-                    Ipa = set.Ipa,
-                    Synonyms = set.Synonyms != null ? new List<string>(set.Synonyms) : null,
-                    Translations = cleanedTranslations
-                });
+                    entities.Add(entity);
+                }
             }
 
-            model.Count = model.Data.Count;
-            return model;
+            return entities;
         }
 
-        private string GetCapitalizedWord(string word, string partOfSpeech, LanguageEnum language)
+        private Dictionary<string, KaikkiJsonDataExtract> GetExtractions(
+            string? languageCode,
+            Dictionary<string, KaikkiJsonDataExtract> germanWordExtraction,
+            Dictionary<string, KaikkiJsonDataExtract> danishWordExtraction)
+        {
+            var normalizedCode = languageCode?.Trim().ToLowerInvariant();
+
+            switch (normalizedCode)
+            {
+                case "de":
+                    return germanWordExtraction;
+                case "da":
+                    return danishWordExtraction;
+                default:
+                    return new Dictionary<string, KaikkiJsonDataExtract>();
+            }
+        }
+
+        private string GetCapitalizedWord(string? word, string partOfSpeech, LanguageEnum language)
         {
             if (string.IsNullOrWhiteSpace(word))
             {
@@ -175,19 +177,82 @@ namespace Logic.Words
             return word;
         }
 
-        private void MapExtractionDataToRelatedTranslations(KaikkiJsonModel dumpModel, Dictionary<string, KaikkiJsonDataExtract> extractionData, string languageCode)
+        private async Task<TranslationEntity?> GetTranslationEntity(
+            WordTranslationModel? model,
+            string partOfSpeach,
+            Guid vocabularyGuid,
+            Dictionary<string, KaikkiJsonDataExtract> wordExtraction)
         {
-            dumpModel.Data.ForEach(dataSet =>
+            var extractionData = IsValidLanguageModel(model, wordExtraction);
+
+            if (model == null || extractionData == null)
             {
-                dataSet.Translations?.ForEach(translation =>
+                return null;
+            }
+
+            var ipa = extractionData?.Ipa ?? model.Ipa ?? string.Empty;
+
+            var languageId = await _wordUnitOfWork.GetLanguageId(GetLanguageTypeFromLanguageCode(model.LanguageCode));
+
+            if (languageId == null)
+            {
+                return null;
+            }
+
+            return new TranslationEntity
+            {
+                VocabularyGuid = vocabularyGuid,
+                LanguageId = (int)languageId,
+                Word = GetCapitalizedWord(model.Word, partOfSpeach, GetLanguageTypeFromLanguageCode(model.LanguageCode)),
+                Ipa = ipa,
+                Sentence = string.Empty,
+                Synonyms = extractionData?.Synonyms != null ? string.Join(", ", extractionData.Synonyms) : string.Empty
+            };
+        }
+
+        private KaikkiJsonDataExtract? IsValidLanguageModel(
+            WordTranslationModel? model,
+            Dictionary<string, KaikkiJsonDataExtract> wordExtraction)
+        {
+            if (model == null || string.IsNullOrEmpty(model.Word) || string.IsNullOrEmpty(model.LanguageCode))
+            {
+                return null;
+            }
+
+            wordExtraction.TryGetValue(model.Word, out var extractionData);
+
+            return extractionData;
+        }
+
+        private async Task SaveVocabularies(List<VocabularyEntity> vocabularyEntities)
+        {
+            var wordList = await GetWordList();
+
+            var entitiesToAdd = vocabularyEntities
+                .Where(e =>
                 {
-                    if (translation.LanguageCode == languageCode && extractionData.TryGetValue(dataSet.Word, out var extraction))
+                    var translationsToAdd = e.Translations.Where(t => !wordList.Contains(t.Word)).ToList();
+
+                    if (!translationsToAdd.Any())
                     {
-                        translation.Ipa = extraction.Ipa;
-                        translation.Synonyms = extraction.Synonyms;
+                        return false;
                     }
-                });
-            });
+
+                    e.Translations = translationsToAdd;
+
+                    return true;
+                }).ToList();
+
+            await _wordUnitOfWork.VocabularyRepository.AddRangeAsync(entitiesToAdd);
+
+            await _wordUnitOfWork.SaveChangesAsync("System");
+        }
+
+        public async Task<List<string>> GetWordList()
+        {
+            var vocabularyList = await _wordUnitOfWork.TranslationRepository.GetAllAsync();
+
+            return vocabularyList.Select(t => t.Word).ToList();
         }
 
         private void CleanupExtractions(Dictionary<string, KaikkiJsonDataExtract>? extractionData)
@@ -195,7 +260,7 @@ namespace Logic.Words
             extractionData?.Clear();
         }
 
-        private LanguageEnum GetLanguageTypeFromLanguageCode(string languageCode)
+        private LanguageEnum GetLanguageTypeFromLanguageCode(string? languageCode)
         {
             switch (languageCode)
             {

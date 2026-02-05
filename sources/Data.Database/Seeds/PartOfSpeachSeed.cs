@@ -1,10 +1,8 @@
 ﻿using Data.Database.Entities.Vocabulary;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Text;
+
 
 namespace Data.Database.Seeds
 {

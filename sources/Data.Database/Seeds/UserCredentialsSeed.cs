@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Globalization;
 
-
 namespace Data.Database.Seeds
 {
     public class UserCredentialsSeed : IEntityTypeConfiguration<UserCredentialsEntity>

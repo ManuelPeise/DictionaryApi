@@ -114,6 +114,11 @@ namespace Data.Accessor
             return await Task.FromResult(result.Entity.Id);
         }
 
+        public async Task AddRangeAsync(IEnumerable<TEntity> entities)
+        {
+            await _table.AddRangeAsync(entities);
+        }
+
         public async Task UpdateAsync(TEntity entity)
         {
             var table = _table.AsQueryable();

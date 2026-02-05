@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260129195217_InitializeDatabase")]
+    [Migration("20260205081839_InitializeDatabase")]
     partial class InitializeDatabase
     {
         /// <inheritdoc />
@@ -491,8 +491,15 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("LanguageEntityId")
+                        .HasColumnType("int");
+
                     b.Property<int>("PartOfSpeachId")
                         .HasColumnType("int");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -506,24 +513,11 @@ namespace Data.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("LanguageEntityId");
+
                     b.HasIndex("PartOfSpeachId");
 
                     b.ToTable("VocabularyTable");
-                });
-
-            modelBuilder.Entity("LanguageEntityVocabularyEntity", b =>
-                {
-                    b.Property<int>("VocabulariesId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VocabularyLanguagesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("VocabulariesId", "VocabularyLanguagesId");
-
-                    b.HasIndex("VocabularyLanguagesId");
-
-                    b.ToTable("LanguageEntityVocabularyEntity");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>
@@ -566,6 +560,10 @@ namespace Data.Database.Migrations
 
             modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
                 {
+                    b.HasOne("Data.Database.Entities.Vocabulary.LanguageEntity", null)
+                        .WithMany("Vocabularies")
+                        .HasForeignKey("LanguageEntityId");
+
                     b.HasOne("Data.Database.Entities.Vocabulary.PartOfSpeachEntity", "PartOfSpeach")
                         .WithMany()
                         .HasForeignKey("PartOfSpeachId")
@@ -575,19 +573,9 @@ namespace Data.Database.Migrations
                     b.Navigation("PartOfSpeach");
                 });
 
-            modelBuilder.Entity("LanguageEntityVocabularyEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.LanguageEntity", b =>
                 {
-                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyEntity", null)
-                        .WithMany()
-                        .HasForeignKey("VocabulariesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Data.Database.Entities.Vocabulary.LanguageEntity", null)
-                        .WithMany()
-                        .HasForeignKey("VocabularyLanguagesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Vocabularies");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>

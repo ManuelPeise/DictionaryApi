@@ -9,6 +9,7 @@ namespace Logic.Words.DI
         {
             services.AddScoped<IKakkiWordService, KaikkiWordService>();
             services.AddScoped<IWordService, WordService>();
+            services.AddScoped<IWordUnitOfWork, WordUnitOfWork>();
         }
     }
 }

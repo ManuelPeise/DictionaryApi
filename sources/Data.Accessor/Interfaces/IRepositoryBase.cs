@@ -81,10 +81,18 @@ namespace Data.Accessor.Interfaces
             TEntity entity,
             Expression<Func<TEntity, bool>>? whereExpression = null);
         /// <summary>
+        /// Asynchronously adds a collection of entities to the underlying data store.
+        /// </summary>
+        /// <param name="entities">The collection of entities to add. Cannot be null. Each entity will be added to the data store.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the number of entities
+        /// successfully added.</returns>
+        Task AddRangeAsync(IEnumerable<TEntity> entities);
+        /// <summary>
         /// Asynchronously updates the specified entity in the data store.
         /// </summary>
         /// <param name="entity">The entity to update. Cannot be null. The entity must already exist in the data store.</param>
         /// <returns>A task that represents the asynchronous update operation.</returns>
+
         Task UpdateAsync(TEntity entity);
         /// <summary>
         /// Asynchronously updates a collection of entities in bulk.
