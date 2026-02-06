@@ -1,0 +1,14 @@
+.nav-link:hover {
+  cursor: pointer;
+  color: #ffcc00;
+}
+
+.nav-icon:hover {
+  cursor: pointer;
+  color: #ffcc00;
+}
+
+.icon:hover {
+  cursor: pointer;
+  color: #ffcc00;
+}

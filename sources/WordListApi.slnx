@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/01 Web/">
+    <Project Path="Web.App/Web.App.csproj" Id="9b86a46a-f755-4ee1-8dd2-460cea6f0cef" />
     <Project Path="Web.Core/Web.Core.csproj" Id="cf3d2fc5-8d0f-4aab-ab51-b96fe22534d6" />
   </Folder>
   <Folder Name="/02 Service/">

@@ -1,0 +1,10 @@
+node_modules/
+build/
+coverage/
+*.log
+*.tmp
+*.tsbuildinfo
+
+# Prettier
+.prettier*
+!.prettierrc
