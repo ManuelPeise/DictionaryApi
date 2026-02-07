@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Logic.Import\Logic.Import.csproj" />
     <ProjectReference Include="..\Logic.UserService\Logic.UserService.csproj" />
     <ProjectReference Include="..\Logic.Words\Logic.Words.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using Data.Database.Entities;
+using Data.Database.Entities.Files;
 using Data.Database.Entities.User;
 using Data.Database.Entities.Vocabulary;
 using Data.Database.Seeds;
@@ -30,8 +31,14 @@ namespace Data.Database
         // vocabulary tabels
         public DbSet<LanguageEntity> LanguageTable { get; set; }
         public DbSet<PartOfSpeachEntity> PartOfSpeachTable { get; set; }
-        public DbSet<VocabularyEntity> VocabularyTable { get; set; }
-        public DbSet<TranslationEntity> TranslationTable { get; set; }
+        //public DbSet<VocabularyEntity> VocabularyTable { get; set; }
+        //public DbSet<TranslationEntity> TranslationTable { get; set; }
+
+        // files
+        public DbSet<ImportFileEntity> ImportFileTable { get; set; }
+
+        // tasks
+        public DbSet<ScheduledTaskEntity> ScheduledTaskTable { get; set; }  
 
     }
 }

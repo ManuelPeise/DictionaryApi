@@ -19,6 +19,53 @@ namespace Data.Database.Migrations
                 .HasAnnotation("ProductVersion", "10.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Data.Database.Entities.Files.ImportFileEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.PrimitiveCollection<string>("FileBytes")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsImportedSuccessful")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("SourceLanguage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.PrimitiveCollection<string>("Translations")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ImportFileTable");
+                });
+
             modelBuilder.Entity("Data.Database.Entities.LogMessageEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -59,6 +106,53 @@ namespace Data.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("LogMessageTable");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.ScheduledTaskEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("Interval")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastFireTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RequestUrl")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("ScheduledFireTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScheduledTaskTable");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserCredentialsEntity", b =>
@@ -472,7 +566,7 @@ namespace Data.Database.Migrations
 
                     b.HasIndex("VocabularyId");
 
-                    b.ToTable("TranslationTable");
+                    b.ToTable("TranslationEntity");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
@@ -514,7 +608,7 @@ namespace Data.Database.Migrations
 
                     b.HasIndex("PartOfSpeachId");
 
-                    b.ToTable("VocabularyTable");
+                    b.ToTable("VocabularyEntity");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>

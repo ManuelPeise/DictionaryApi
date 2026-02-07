@@ -1,36 +1,47 @@
-﻿using Data.Accessor;
-using Data.Accessor.Interfaces;
+﻿using Data.Accessor.Interfaces;
 using Data.Database;
 using Data.Database.Entities;
+using Data.Database.Entities.Files;
 using Data.Database.Entities.User;
-using Logic.UserService.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Logic.UserService
+namespace Data.Accessor
 {
-    public class UserUnitOfWork : IUserUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         private readonly DatabaseContext _dbContext;
 
-        private IRepositoryBase<UserEntity> _userRepository;
+        // user unit of work
+        private IRepositoryBase<UserEntity>? _userRepository;
         public IRepositoryBase<UserEntity> UserRepository => _userRepository ?? new RepositoryBase<UserEntity>(_dbContext);
 
-        private IRepositoryBase<UserCredentialsEntity> _userCredentialsRepository;
-        
-
+        private IRepositoryBase<UserCredentialsEntity>? _userCredentialsRepository;
         public IRepositoryBase<UserCredentialsEntity> UserCredentialsRepository => _userCredentialsRepository ?? new RepositoryBase<UserCredentialsEntity>(_dbContext);
 
-        public UserUnitOfWork(DatabaseContext dbContext)
+        private IRepositoryBase<UserSettingsEntity>? _userSettingsRepository;
+        public IRepositoryBase<UserSettingsEntity> UserSettingsRepository => _userSettingsRepository ?? new RepositoryBase<UserSettingsEntity>(_dbContext);
+
+        // files unit of work
+
+        private IRepositoryBase<ImportFileEntity>? _importFileRepository;
+        public IRepositoryBase<ImportFileEntity> ImportFileRepository => _importFileRepository ?? new RepositoryBase<ImportFileEntity>(_dbContext);
+
+        private IRepositoryBase<ScheduledTaskEntity>? _scheduledTaskRepository;
+        public IRepositoryBase<ScheduledTaskEntity> ScheduledTaskRepository => _scheduledTaskRepository ?? new RepositoryBase<ScheduledTaskEntity>(_dbContext);
+
+        public UnitOfWork(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
             _userRepository = new RepositoryBase<UserEntity>(_dbContext);
             _userCredentialsRepository = new RepositoryBase<UserCredentialsEntity>(_dbContext);
-
+            _userSettingsRepository = new RepositoryBase<UserSettingsEntity>(_dbContext);
+            _importFileRepository = new RepositoryBase<ImportFileEntity>(_dbContext);
+            _scheduledTaskRepository = new RepositoryBase<ScheduledTaskEntity>(_dbContext);
         }
 
         public async Task<int> SaveChangesAsync(string userName)
         {
-            if (_dbContext == null) throw new ObjectDisposedException(nameof(UserUnitOfWork));
+            if (_dbContext == null) throw new ObjectDisposedException(nameof(UnitOfWork));
 
             var now = DateTime.UtcNow;
 
@@ -57,6 +68,5 @@ namespace Logic.UserService
 
             return await _dbContext.SaveChangesAsync();
         }
-
     }
 }

@@ -5,6 +5,7 @@ import { IVocabularyFileUpload } from './models/IVocabularyFileUpload';
 import TextInput from '../../components/input/TextInput';
 import { TranslationEnum } from '../../lib/enums/translationEnum';
 import ActionButton from '../../components/input/ActionButton';
+import { useApi } from '../../hooks/useApi';
 
 interface IProps {}
 
@@ -13,7 +14,12 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
     topic: null,
     sourceLanguage: TranslationEnum.De,
     translations: [],
-    file: null,
+    file: [],
+  });
+
+  const api = useApi.useStatefullApi<IVocabularyFileUpload, void>({
+    requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabulary`,
+    method: 'POST',
   });
 
   const languageCheckboxItems = React.useMemo(() => {
@@ -33,11 +39,15 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
     ];
   }, []);
 
-  const onSelectedFilesChanged = React.useCallback((files: File[]) => {
+  const onSelectedFilesChanged = React.useCallback(async (files: File[]) => {
     if (files.length > 0) {
+      var buffer = await files[0].arrayBuffer();
+      const uint8Array = new Uint8Array(buffer);
+      const byteArray = Array.from(uint8Array);
+
       setImportModel((prev) => ({
         ...prev,
-        file: files[0],
+        file: byteArray,
       }));
     }
   }, []);
@@ -81,9 +91,22 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
     [importModel.translations],
   );
 
-  const handleImportFile = React.useCallback(() => {
+  const handleImportFile = React.useCallback(async () => {
     console.log(importModel);
-  }, [importModel]);
+    await api
+      .sendPostRequest(importModel, {
+        requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabulary`,
+        method: 'POST',
+      })
+      .then(() => {
+        setImportModel({
+          topic: null,
+          sourceLanguage: TranslationEnum.De,
+          translations: [],
+          file: [],
+        });
+      });
+  }, [importModel, api]);
 
   const importDisabled = React.useMemo(() => {
     return (

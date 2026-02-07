@@ -1,4 +1,5 @@
-﻿using Data.Database;
+﻿using Data.Accessor.Interfaces;
+using Data.Database;
 using Logic.Shared.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Shared.Enums;
@@ -11,11 +12,15 @@ namespace Logic.Shared
     {
         private readonly DatabaseContext _dbContext;
         private readonly IHttpContextAccessor _httpContextAccessor;
-       
-        public LogicBase(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor)
+        private readonly IUnitOfWork _unitOfWork;
+
+        protected IUnitOfWork UnitOfWork => _unitOfWork;
+        
+        public LogicBase(DatabaseContext dbContext, IHttpContextAccessor httpContextAccessor, IUnitOfWork unitOfWork)
         {
             _dbContext = dbContext;
             _httpContextAccessor = httpContextAccessor;
+            _unitOfWork = unitOfWork;
         }
 
         public UserModel GetCurrentUser(bool? includeDetails = false)

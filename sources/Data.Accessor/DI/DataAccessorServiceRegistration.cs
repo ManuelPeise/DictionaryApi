@@ -8,6 +8,7 @@ namespace Data.Accessor.DI
         public static void RegisterDataAccessorServices(this IServiceCollection services)
         {
             services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
     }
 }

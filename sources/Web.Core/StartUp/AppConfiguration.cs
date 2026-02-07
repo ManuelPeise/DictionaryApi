@@ -11,6 +11,7 @@
             }
 
             app.UseCors(corsPolicy);
+            app.UseMiddleware<SchedulerMiddleWare>();
 
             // Only use HTTPS redirection when not running in Docker
             if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")))

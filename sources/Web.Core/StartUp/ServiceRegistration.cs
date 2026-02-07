@@ -1,5 +1,6 @@
 ﻿using Data.Accessor.DI;
 using Data.Database;
+using Logic.Import.DI;
 using Logic.Shared.DI;
 using Logic.UserService.DI;
 using Logic.Words.DI;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using Quartz;
+using Quartz.Simpl;
 using Shared.Models;
 using Shared.Models.Authentication;
 using Shared.Models.Settings;
@@ -23,6 +26,7 @@ namespace Web.Core.StartUp
             services.Configure<JwtTokenModel>(configuration.GetSection("Jwt"));
             services.Configure<UserSettings>(configuration.GetSection("Settings"));
             services.Configure<FileSystemConfiguration>(configuration.GetSection("FileSystemConfiguration"));
+            services.Configure<ApiSettings>(configuration.GetSection("ApiSettings"));
 
             services.AddRateLimiter(options =>
             {
@@ -55,6 +59,13 @@ namespace Web.Core.StartUp
                            .AllowAnyHeader();
                 });
             });
+
+            services.AddQuartz(q =>
+            {
+                q.UseJobFactory<MicrosoftDependencyInjectionJobFactory>();
+            });
+
+            services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
             services.AddDbContext<DatabaseContext>(options =>
             {
@@ -104,6 +115,7 @@ namespace Web.Core.StartUp
             services.RegisterWordServices();
             services.RegisterDataAccessorServices();
             services.RegisterUserServices();
+            services.RegisterImportServices();
 
             RegisterSwagger(services);
 

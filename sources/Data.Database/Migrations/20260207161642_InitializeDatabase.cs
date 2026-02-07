@@ -18,6 +18,29 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ImportFileTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    FileName = table.Column<string>(type: "longtext", nullable: false),
+                    Topic = table.Column<string>(type: "longtext", nullable: false),
+                    SourceLanguage = table.Column<int>(type: "int", nullable: false),
+                    Translations = table.Column<string>(type: "longtext", nullable: false),
+                    FileBytes = table.Column<string>(type: "longtext", nullable: false),
+                    IsImportedSuccessful = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImportFileTable", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "LanguageTable",
                 columns: table => new
                 {
@@ -79,6 +102,30 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
+                name: "ScheduledTaskTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    RequestUrl = table.Column<string>(type: "longtext", nullable: false),
+                    Message = table.Column<string>(type: "longtext", nullable: true),
+                    Interval = table.Column<int>(type: "int", nullable: false),
+                    ScheduledFireTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    LastFireTime = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ScheduledTaskTable", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
                 name: "UserCredentialsTable",
                 columns: table => new
                 {
@@ -119,7 +166,7 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "VocabularyTable",
+                name: "VocabularyEntity",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -135,14 +182,14 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VocabularyTable", x => x.Id);
+                    table.PrimaryKey("PK_VocabularyEntity", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VocabularyTable_LanguageTable_LanguageEntityId",
+                        name: "FK_VocabularyEntity_LanguageTable_LanguageEntityId",
                         column: x => x.LanguageEntityId,
                         principalTable: "LanguageTable",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_VocabularyTable_PartOfSpeachTable_PartOfSpeachId",
+                        name: "FK_VocabularyEntity_PartOfSpeachTable_PartOfSpeachId",
                         column: x => x.PartOfSpeachId,
                         principalTable: "PartOfSpeachTable",
                         principalColumn: "Id",
@@ -189,7 +236,7 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "TranslationTable",
+                name: "TranslationEntity",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -208,17 +255,17 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TranslationTable", x => x.Id);
+                    table.PrimaryKey("PK_TranslationEntity", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TranslationTable_LanguageTable_LanguageId",
+                        name: "FK_TranslationEntity_LanguageTable_LanguageId",
                         column: x => x.LanguageId,
                         principalTable: "LanguageTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TranslationTable_VocabularyTable_VocabularyId",
+                        name: "FK_TranslationEntity_VocabularyEntity_VocabularyId",
                         column: x => x.VocabularyId,
-                        principalTable: "VocabularyTable",
+                        principalTable: "VocabularyEntity",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -265,13 +312,13 @@ namespace Data.Database.Migrations
                 values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1980, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin.user@app.com", "Admin", "User", new byte[0], new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", 1, "95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d", 1, 1 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TranslationTable_LanguageId",
-                table: "TranslationTable",
+                name: "IX_TranslationEntity_LanguageId",
+                table: "TranslationEntity",
                 column: "LanguageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TranslationTable_VocabularyId",
-                table: "TranslationTable",
+                name: "IX_TranslationEntity_VocabularyId",
+                table: "TranslationEntity",
                 column: "VocabularyId");
 
             migrationBuilder.CreateIndex(
@@ -285,13 +332,13 @@ namespace Data.Database.Migrations
                 column: "UserSettingsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VocabularyTable_LanguageEntityId",
-                table: "VocabularyTable",
+                name: "IX_VocabularyEntity_LanguageEntityId",
+                table: "VocabularyEntity",
                 column: "LanguageEntityId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VocabularyTable_PartOfSpeachId",
-                table: "VocabularyTable",
+                name: "IX_VocabularyEntity_PartOfSpeachId",
+                table: "VocabularyEntity",
                 column: "PartOfSpeachId");
         }
 
@@ -299,16 +346,22 @@ namespace Data.Database.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "ImportFileTable");
+
+            migrationBuilder.DropTable(
                 name: "LogMessageTable");
 
             migrationBuilder.DropTable(
-                name: "TranslationTable");
+                name: "ScheduledTaskTable");
+
+            migrationBuilder.DropTable(
+                name: "TranslationEntity");
 
             migrationBuilder.DropTable(
                 name: "UserTable");
 
             migrationBuilder.DropTable(
-                name: "VocabularyTable");
+                name: "VocabularyEntity");
 
             migrationBuilder.DropTable(
                 name: "UserCredentialsTable");

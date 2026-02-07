@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Enums;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -11,9 +12,12 @@ namespace Service.Api
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
     internal class ApiAuthentication : Attribute, IAuthorizationFilter
     {
+        public UserRoleEnum RequiredRole { get; set; } = UserRoleEnum.Unknown;
+
         public void OnAuthorization(AuthorizationFilterContext context)
         {
             var jwtTokenService = context.HttpContext.RequestServices.GetService<IJwtTokenService>();
+            
             if (jwtTokenService == null)
             {
                 context.Result = new UnauthorizedResult();
@@ -29,6 +33,7 @@ namespace Service.Api
             }
 
             var token = authHeader.Substring("Bearer ".Length).Trim();
+            
             var jwtModel = jwtTokenService.GetJwtOptions();
 
             if (jwtModel == null || string.IsNullOrEmpty(jwtModel.SecurityKey))
@@ -40,6 +45,18 @@ namespace Service.Api
             if (!ValidateJwtToken(token, jwtModel))
             {
                 context.Result = new UnauthorizedResult();
+            }
+
+            if(RequiredRole == UserRoleEnum.Unknown)
+            {
+                return;
+            }
+
+            var userRoleClaim = context.HttpContext.User.Claims.FirstOrDefault(c => c.Type == "user_role")?.Value;
+            
+            if(userRoleClaim == null || !Enum.TryParse<UserRoleEnum>(userRoleClaim, out var userRole) || userRole != RequiredRole)
+            {
+                context.Result = new ForbidResult();
             }
         }
 
