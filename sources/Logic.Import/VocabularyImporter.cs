@@ -26,21 +26,58 @@ namespace Logic.Import
         private readonly HttpClient _httpClient;
         private readonly ApiSettings _apiSettings;
         private readonly IKaikkiParser _kaikkiParser;
+        private readonly IFileImporter _fileImporter;
 
         public VocabularyImporter(
             DatabaseContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IUnitOfWork unitOfWork,
             IKaikkiParser kaikkiParser,
+            IFileImporter fileImporter,
             IOptions<ApiSettings> options)
             : base(dbContext, httpContextAccessor, unitOfWork)
         {
             _logger = new Logger<VocabularyImporter>(dbContext);
             _kaikkiParser = kaikkiParser;
+            _fileImporter = fileImporter;
             _httpClient = new HttpClient();
             _apiSettings = options.Value;
         }
 
+        public async Task<bool> ImportVocabularyFileAsync(VocabularyFileUpload fileUploadModel)
+        {
+            try
+            {
+                var importFileEntity = new ImportFileEntity
+                {
+                    FileName = fileUploadModel.FileName,
+                    FileBytes = fileUploadModel.File,
+                    Key = fileUploadModel.Topic,
+                    SourceLanguage = fileUploadModel.SourceLanguage,
+                    Translations = fileUploadModel.Translations,
+                    Status = FileImportStatus.Pending,
+                    IsImportedSuccessful = false
+                };
+
+                await ImportPendingFiles(new List<ImportFileEntity> { importFileEntity });
+
+                importFileEntity.Status = FileImportStatus.Completed;
+                importFileEntity.IsImportedSuccessful = true;
+
+                await _fileImporter.ImportVocabularyFileAsync(fileUploadModel, false, true);
+
+                await _logger.LogMessageAsync($"Vocabulary file {fileUploadModel.FileName} imported.", LogMessageTypeEnum.Info);
+
+                return true;
+
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync("", LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+
+                return false;
+            }
+        }
 
         public async Task ImportVocabularyFilesAsync()
         {
@@ -61,36 +98,8 @@ namespace Logic.Import
                     return;
                 }
 
-                var kaikkiWordExtractions = await GetKaikkiExtractions(GetKaikkiExtractionTypes());
+                await ImportPendingFiles(pendingVocabularyFiles.ToList());
 
-                foreach (var file in pendingVocabularyFiles)
-                {
-                    var lines = ReadFileLines(file.FileBytes);
-
-                    if (!lines.Any())
-                    {
-                        await _logger.LogMessageAsync(
-                            $"The file with ID {file.Id} contains no valid lines to import.",
-                            LogMessageTypeEnum.Warning);
-
-                        file.Status = FileImportStatus.Failed;
-
-                        continue;
-                    }
-
-                    var vocabularies = ParseLines(lines, GetMappedColums(lines.First()), file.SourceLanguage.ToString());
-
-                    var vocabularyTranslations = new List<Vocabulary>();
-
-                    foreach (var vocabulary in vocabularies)
-                    {
-                        vocabularyTranslations.Add(await GetVocabularyTranslation(vocabulary, file, kaikkiWordExtractions));
-                    }
-
-                    var store = new VocabularyStorage(UnitOfWork);
-
-                    await store.StoreVocabularies(vocabularyTranslations, file.Key, file.SourceLanguage);
-                }
             }
             catch (Exception exception)
             {
@@ -100,6 +109,40 @@ namespace Logic.Import
                     exception.Message,
                     exception.StackTrace);
                 throw;
+            }
+        }
+
+        private async Task ImportPendingFiles(List<ImportFileEntity> pendingVocabularyFiles)
+        {
+            var kaikkiWordExtractions = await GetKaikkiExtractions(GetKaikkiExtractionTypes());
+
+            foreach (var file in pendingVocabularyFiles)
+            {
+                var lines = ReadFileLines(file.FileBytes);
+
+                if (!lines.Any())
+                {
+                    await _logger.LogMessageAsync(
+                        $"The file with ID {file.Id} contains no valid lines to import.",
+                        LogMessageTypeEnum.Warning);
+
+                    file.Status = FileImportStatus.Failed;
+
+                    continue;
+                }
+
+                var vocabularies = ParseLines(lines, GetMappedColums(lines.First()), file.SourceLanguage.ToString());
+
+                var vocabularyTranslations = new List<Vocabulary>();
+
+                foreach (var vocabulary in vocabularies)
+                {
+                    vocabularyTranslations.Add(await GetVocabularyTranslation(vocabulary, file, kaikkiWordExtractions));
+                }
+
+                var store = new VocabularyStorage(UnitOfWork);
+
+                await store.StoreVocabularies(vocabularyTranslations, file.Key, file.SourceLanguage);
             }
         }
 

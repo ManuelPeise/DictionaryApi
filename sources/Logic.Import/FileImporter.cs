@@ -37,7 +37,7 @@ namespace Logic.Import
         /// <param name="fileUploadModel">The model containing information about the vocabulary file to be imported. Cannot be null.</param>
         /// <returns>A task that represents the asynchronous operation of scheduling the vocabulary import.</returns>
         /// <exception cref="ArgumentNullException">Thrown if <paramref name="fileUploadModel"/> is null.</exception>
-        public async Task ImportVocabularyFileAsync(VocabularyFileUpload fileUploadModel)
+        public async Task ImportVocabularyFileAsync(VocabularyFileUpload fileUploadModel, bool isPending, bool isCompleted)
         {
             try
             {
@@ -48,19 +48,23 @@ namespace Logic.Import
 
                 var currentUser = GetCurrentUser();
 
-                var importFileEntity = CreateImportFileEntity(fileUploadModel);
+                var importFileEntity = CreateImportFileEntity(fileUploadModel, isPending, isCompleted);
 
                 await UnitOfWork.ImportFileRepository.AddAsync(importFileEntity);
 
-                await _scheduledTasks.ScheduleTask(new SceduledTaskRequest
+                if (isPending)
                 {
-                    Type = ScheduledTaskType.VocabularyImportService,
-                    Message = $"Vocabulary import scheduled with status pending.",
-                    FireTime = null,
-                    Interval = ScheduleInterval.None,
-                });
+                    await _scheduledTasks.ScheduleTask(new SceduledTaskRequest
+                    {
+                        Type = ScheduledTaskType.VocabularyImportService,
+                        Message = $"Vocabulary import scheduled with status pending.",
+                        FireTime = null,
+                        Interval = ScheduleInterval.None,
+                    });
+                }
 
                 await UnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
+
             }
             catch (Exception exception)
             {
@@ -73,7 +77,7 @@ namespace Logic.Import
             }
         }
 
-        private ImportFileEntity CreateImportFileEntity(VocabularyFileUpload fileUploadModel)
+        private ImportFileEntity CreateImportFileEntity(VocabularyFileUpload fileUploadModel, bool isPending, bool isCompleted)
         {
 
             var importFileEntity = new ImportFileEntity
@@ -83,8 +87,8 @@ namespace Logic.Import
                 Key = fileUploadModel.Topic,
                 SourceLanguage = fileUploadModel.SourceLanguage,
                 Translations = fileUploadModel.Translations,
-                Status = FileImportStatus.Pending,
-                IsImportedSuccessful = false
+                Status = isPending ? FileImportStatus.Pending : isCompleted ? FileImportStatus.Completed : FileImportStatus.Failed,
+                IsImportedSuccessful = isCompleted
             };
 
             return importFileEntity;

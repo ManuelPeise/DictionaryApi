@@ -16,10 +16,11 @@ namespace Service.Api.Controllers.Vovabulary
             _vocabularyImporter = vocabularyImporter;
         }
 
+        [ApiAuthentication(RequiredRole = UserRoleEnum.Admin)]
         [HttpPost(Name = "ImportVocabulary")]
-        public async Task ImportVocabulary([FromBody] VocabularyFileUpload fileUpload)
+        public async Task<bool> ImportVocabularyFile([FromBody] VocabularyFileUpload fileUpload)
         {
-           await _fileImporter.ImportVocabularyFileAsync(fileUpload);
+           return await _vocabularyImporter.ImportVocabularyFileAsync(fileUpload);
         }
 
         

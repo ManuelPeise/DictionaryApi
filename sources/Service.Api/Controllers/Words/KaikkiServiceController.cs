@@ -4,11 +4,11 @@ using Shared.Enums;
 
 namespace Service.Api.Controllers.Words
 {
-    public class WordServiceController : ApiControllerBase
+    public class KaikkiServiceController : ApiControllerBase
     {
         private readonly IKaikkiParser _kaikkiParser;
 
-        public WordServiceController(IKaikkiParser kaikkiParser)
+        public KaikkiServiceController(IKaikkiParser kaikkiParser)
         {
             _kaikkiParser = kaikkiParser;
         }
