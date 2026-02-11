@@ -2,6 +2,7 @@
 {
     public class ApiSettings
     {
-        public string BaseUrl { get; set; } = string.Empty;
+        public string ApiBaseUrl { get; set; } = string.Empty;
+        public string LibreTranslateUrl { get; set; } = string.Empty;
     }
 }

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260207161642_InitializeDatabase")]
+    [Migration("20260211164223_InitializeDatabase")]
     partial class InitializeDatabase
     {
         /// <inheritdoc />
@@ -46,12 +46,15 @@ namespace Data.Database.Migrations
                     b.Property<bool>("IsImportedSuccessful")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("SourceLanguage")
                         .HasColumnType("int");
 
-                    b.Property<string>("Topic")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.PrimitiveCollection<string>("Translations")
                         .IsRequired()
@@ -156,6 +159,21 @@ namespace Data.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ScheduledTaskTable");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "System",
+                            Interval = 0,
+                            Message = "Load words from Kaikki.org",
+                            RequestUrl = "http://localhost:5000/api/WordService/Execute",
+                            Status = 0,
+                            Type = 1,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            UpdatedBy = ""
+                        });
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserCredentialsEntity", b =>
@@ -345,9 +363,6 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("LanguageType")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -355,6 +370,9 @@ namespace Data.Database.Migrations
                     b.Property<string>("ResourceKey")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("TranslationType")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -373,9 +391,9 @@ namespace Data.Database.Migrations
                             Id = 1,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
-                            LanguageType = 2,
                             Name = "German",
                             ResourceKey = "LanguageGerman",
+                            TranslationType = 1,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         },
@@ -384,9 +402,9 @@ namespace Data.Database.Migrations
                             Id = 2,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
-                            LanguageType = 0,
                             Name = "English",
                             ResourceKey = "LanguageEnglish",
+                            TranslationType = 0,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         },
@@ -395,15 +413,15 @@ namespace Data.Database.Migrations
                             Id = 3,
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
-                            LanguageType = 1,
                             Name = "Danish",
                             ResourceKey = "LanguageDanish",
+                            TranslationType = 2,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         });
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.PartOfSpeachEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.PartOfSpeechEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -518,11 +536,14 @@ namespace Data.Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.TranslationEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    b.Property<string>("Article")
+                        .HasColumnType("longtext");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
@@ -531,20 +552,26 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<string>("Ipa")
-                        .IsRequired()
+                    b.Property<string>("ExampleSentence")
                         .HasColumnType("longtext");
+
+                    b.Property<Guid>("GroupGuid")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Ipa")
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("IsReviewRequired")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("LanguageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Sentence")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("PartOfSpeechId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Synonyms")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("TopicId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -552,12 +579,6 @@ namespace Data.Database.Migrations
                     b.Property<string>("UpdatedBy")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<Guid>("VocabularyGuid")
-                        .HasColumnType("char(36)");
-
-                    b.Property<int>("VocabularyId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Word")
                         .IsRequired()
@@ -567,12 +588,14 @@ namespace Data.Database.Migrations
 
                     b.HasIndex("LanguageId");
 
-                    b.HasIndex("VocabularyId");
+                    b.HasIndex("PartOfSpeechId");
 
-                    b.ToTable("TranslationEntity");
+                    b.HasIndex("TopicId");
+
+                    b.ToTable("VocabularyTable");
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -585,15 +608,15 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("LanguageEntityId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("GroupGuid")
+                        .HasColumnType("char(36)");
 
-                    b.Property<int>("PartOfSpeachId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Topic")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int>("SourceLanguage")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
@@ -602,16 +625,9 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("VocabularyGuid")
-                        .HasColumnType("char(36)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("LanguageEntityId");
-
-                    b.HasIndex("PartOfSpeachId");
-
-                    b.ToTable("VocabularyEntity");
+                    b.ToTable("VocabularyTopicTable");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>
@@ -633,7 +649,7 @@ namespace Data.Database.Migrations
                     b.Navigation("UserSettings");
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.TranslationEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
                 {
                     b.HasOne("Data.Database.Entities.Vocabulary.LanguageEntity", "Language")
                         .WithMany()
@@ -641,40 +657,28 @@ namespace Data.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyEntity", "Vocabulary")
-                        .WithMany("Translations")
-                        .HasForeignKey("VocabularyId")
+                    b.HasOne("Data.Database.Entities.Vocabulary.PartOfSpeechEntity", "PartOfSpeech")
+                        .WithMany()
+                        .HasForeignKey("PartOfSpeechId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", "Topic")
+                        .WithMany("Vocabularies")
+                        .HasForeignKey("TopicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Language");
 
-                    b.Navigation("Vocabulary");
+                    b.Navigation("PartOfSpeech");
+
+                    b.Navigation("Topic");
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
-                {
-                    b.HasOne("Data.Database.Entities.Vocabulary.LanguageEntity", null)
-                        .WithMany("Vocabularies")
-                        .HasForeignKey("LanguageEntityId");
-
-                    b.HasOne("Data.Database.Entities.Vocabulary.PartOfSpeachEntity", "PartOfSpeach")
-                        .WithMany()
-                        .HasForeignKey("PartOfSpeachId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("PartOfSpeach");
-                });
-
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.LanguageEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", b =>
                 {
                     b.Navigation("Vocabularies");
-                });
-
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
-                {
-                    b.Navigation("Translations");
                 });
 #pragma warning restore 612, 618
         }

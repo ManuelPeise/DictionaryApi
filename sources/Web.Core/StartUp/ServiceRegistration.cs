@@ -3,7 +3,6 @@ using Data.Database;
 using Logic.Import.DI;
 using Logic.Shared.DI;
 using Logic.UserService.DI;
-using Logic.Words.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -112,7 +111,6 @@ namespace Web.Core.StartUp
 
 
             services.RegisterSharedServices();
-            services.RegisterWordServices();
             services.RegisterDataAccessorServices();
             services.RegisterUserServices();
             services.RegisterImportServices();

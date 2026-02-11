@@ -42,7 +42,6 @@
     <ProjectReference Include="..\Logic.Import\Logic.Import.csproj" />
     <ProjectReference Include="..\Logic.Shared\Logic.Shared.csproj" />
     <ProjectReference Include="..\Logic.UserService\Logic.UserService.csproj" />
-    <ProjectReference Include="..\Logic.Words\Logic.Words.csproj" />
     <ProjectReference Include="..\Service.Api\Service.Api.csproj" />
   </ItemGroup>
 

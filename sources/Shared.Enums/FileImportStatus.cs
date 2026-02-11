@@ -1,9 +1,8 @@
 ﻿namespace Shared.Enums
 {
-    public enum ScheduledTaskStatus
+    public enum FileImportStatus
     {
         Pending = 0,
-        InProgress = 1,
         Completed = 2,
         Failed = 3
     }

@@ -3,6 +3,7 @@ using Data.Database;
 using Data.Database.Entities;
 using Data.Database.Entities.Files;
 using Data.Database.Entities.User;
+using Data.Database.Entities.Vocabulary;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.Accessor
@@ -21,6 +22,19 @@ namespace Data.Accessor
         private IRepositoryBase<UserSettingsEntity>? _userSettingsRepository;
         public IRepositoryBase<UserSettingsEntity> UserSettingsRepository => _userSettingsRepository ?? new RepositoryBase<UserSettingsEntity>(_dbContext);
 
+        // vocabulary
+
+        private readonly IRepositoryBase<LanguageEntity> _languageRepository;
+        public IRepositoryBase<LanguageEntity> LanguageRepository => _languageRepository ?? new RepositoryBase<LanguageEntity>(_dbContext);
+
+        private readonly IRepositoryBase<PartOfSpeechEntity> _partOfSpeechRepository;
+        public IRepositoryBase<PartOfSpeechEntity> PartOfSpeechRepository => _partOfSpeechRepository ?? new RepositoryBase<PartOfSpeechEntity>(_dbContext);
+
+        private readonly IRepositoryBase<VocabularyEntity> _vocabularyRepository;
+        public IRepositoryBase<VocabularyEntity> VocabularyRepository => _vocabularyRepository ?? new RepositoryBase<VocabularyEntity>(_dbContext);
+
+        private readonly IRepositoryBase<VocabularyTopicEntity> _vocabularyTopicRepository;
+        public IRepositoryBase<VocabularyTopicEntity> VocabularyTopicRepository => _vocabularyTopicRepository ?? new RepositoryBase<VocabularyTopicEntity>(_dbContext);
         // files unit of work
 
         private IRepositoryBase<ImportFileEntity>? _importFileRepository;
@@ -37,6 +51,11 @@ namespace Data.Accessor
             _userSettingsRepository = new RepositoryBase<UserSettingsEntity>(_dbContext);
             _importFileRepository = new RepositoryBase<ImportFileEntity>(_dbContext);
             _scheduledTaskRepository = new RepositoryBase<ScheduledTaskEntity>(_dbContext);
+            _languageRepository = new RepositoryBase<LanguageEntity>(_dbContext);
+            _partOfSpeechRepository = new RepositoryBase<PartOfSpeechEntity>(_dbContext);
+            _vocabularyRepository = new RepositoryBase<VocabularyEntity>(_dbContext);
+            _vocabularyTopicRepository = new RepositoryBase<VocabularyTopicEntity>(_dbContext);
+
         }
 
         public async Task<int> SaveChangesAsync(string userName)

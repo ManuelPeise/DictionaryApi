@@ -6,10 +6,10 @@ namespace Logic.Words.Interfaces
 {
     public interface IWordUnitOfWork
     {
-        IRepositoryBase<PartOfSpeachEntity> PartOfSpeachRepository { get; }
+        IRepositoryBase<PartOfSpeechEntity> PartOfSpeachRepository { get; }
         IRepositoryBase<LanguageEntity> LanguageRepository { get; }
         IRepositoryBase<VocabularyEntity> VocabularyRepository { get; }
-        IRepositoryBase<TranslationEntity> TranslationRepository { get; }
+        IRepositoryBase<VocabularyTranslationEntity> TranslationRepository { get; }
 
         Task<int?> GetPartOfSpeachId(string? partOfSpeach);
         Task<int?> GetLanguageId(LanguageEnum language);

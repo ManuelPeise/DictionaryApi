@@ -103,11 +103,11 @@ namespace Logic.Words
                     continue;
                 }
 
-                var translations = new List<TranslationEntity>
+                var translations = new List<VocabularyTranslationEntity>
                 {
-                    new TranslationEntity
+                    new VocabularyTranslationEntity
                     {
-                        VocabularyGuid = vocabularyGuid,
+                        g = vocabularyGuid,
                         LanguageId = (int)languageId,
                         Word = GetCapitalizedWord(entry.Word, entry.PartOfSpeech, GetLanguageTypeFromLanguageCode(entry.LanguageCode)),
                         Ipa = entry.Ipa ?? string.Empty,
@@ -177,7 +177,7 @@ namespace Logic.Words
             return word;
         }
 
-        private async Task<TranslationEntity?> GetTranslationEntity(
+        private async Task<VocabularyTranslationEntity?> GetTranslationEntity(
             WordTranslationModel? model,
             string partOfSpeach,
             Guid vocabularyGuid,

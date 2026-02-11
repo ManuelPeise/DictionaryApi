@@ -103,6 +103,7 @@ namespace Logic.Import
                     using (var response = await client.GetAsync(requestUrl, HttpCompletionOption.ResponseHeadersRead))
                     {
                         response.EnsureSuccessStatusCode();
+
                         using (var responseStream = await response.Content.ReadAsStreamAsync())
                         using (var reader = new StreamReader(responseStream, bufferSize: 65536))
                         {

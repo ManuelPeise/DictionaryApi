@@ -15,7 +15,7 @@ namespace Web.Core.StartUp
 
             var configuration = services.GetRequiredService<IConfiguration>();
 
-            var apiBaseUrl = configuration.GetSection("ApiSettings").Get<ApiSettings>()?.BaseUrl;
+            var apiBaseUrl = configuration.GetSection("ApiSettings").Get<ApiSettings>()?.ApiBaseUrl;
 
             var currentDateTime = DateTime.UtcNow;
 
@@ -27,7 +27,7 @@ namespace Web.Core.StartUp
                 GetNextInterval(currentDateTime, 5),
                 "0 0/5 * * * ?");
 
-            await scheduler.Start();
+            // await scheduler.Start();
         }
 
         private static async Task AddJob(

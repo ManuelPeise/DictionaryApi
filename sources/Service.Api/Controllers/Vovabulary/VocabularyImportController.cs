@@ -8,9 +8,12 @@ namespace Service.Api.Controllers.Vovabulary
     public class VocabularyImportController : ApiControllerBase
     {
         private readonly IFileImporter _fileImporter;
-        public VocabularyImportController(IFileImporter fileImporter)
+        private readonly IVocabularyImporter _vocabularyImporter;
+
+        public VocabularyImportController(IFileImporter fileImporter, IVocabularyImporter vocabularyImporter)
         {
             _fileImporter = fileImporter;
+            _vocabularyImporter = vocabularyImporter;
         }
 
         [HttpPost(Name = "ImportVocabulary")]
@@ -19,12 +22,12 @@ namespace Service.Api.Controllers.Vovabulary
            await _fileImporter.ImportVocabularyFileAsync(fileUpload);
         }
 
-        // called by maintenance user to execute vocabulary import task
+        
         [UserRoleAuthentication(RequiredRole = UserRoleEnum.MaintenanceUser)]
         [HttpPost(Name = "ExecuteVocabularyTask")]
         public async Task ExecuteVocabularyTask()
         {
-           
+           await _vocabularyImporter.ImportVocabularyFilesAsync();
         }
     }
 }

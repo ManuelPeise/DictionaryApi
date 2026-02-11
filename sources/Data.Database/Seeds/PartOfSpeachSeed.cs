@@ -6,18 +6,18 @@ using System.Globalization;
 
 namespace Data.Database.Seeds
 {
-    public class PartOfSpeachSeed : IEntityTypeConfiguration<PartOfSpeachEntity>
+    public class PartOfSpeachSeed : IEntityTypeConfiguration<PartOfSpeechEntity>
     {
-        public void Configure(EntityTypeBuilder<PartOfSpeachEntity> builder)
+        public void Configure(EntityTypeBuilder<PartOfSpeechEntity> builder)
         {
             var timeStamp = DateTime.Parse("2026.01.01", CultureInfo.InvariantCulture);
 
             builder.HasData(GetPartOfSpeachSeeds(timeStamp));
         }
          
-        private List<PartOfSpeachEntity> GetPartOfSpeachSeeds(DateTime timeStamp)
+        private List<PartOfSpeechEntity> GetPartOfSpeachSeeds(DateTime timeStamp)
         {
-            var entities = new List<PartOfSpeachEntity>();
+            var entities = new List<PartOfSpeechEntity>();
             
             var pos = new List<string>
             {
@@ -33,7 +33,7 @@ namespace Data.Database.Seeds
 
             for (int i = 0; i < pos.Count; i++)
             {
-                entities.Add(new PartOfSpeachEntity
+                entities.Add(new PartOfSpeechEntity
                 {
                     Id = i + 1,
                     Name = pos[i],

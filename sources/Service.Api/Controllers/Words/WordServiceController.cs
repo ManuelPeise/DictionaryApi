@@ -1,29 +1,28 @@
-﻿using Logic.Words.Interfaces;
+﻿using Logic.Import.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Enums;
+
 namespace Service.Api.Controllers.Words
 {
-    public class WordServiceController
+    public class WordServiceController : ApiControllerBase
     {
-        private readonly IWordService _wordService;
+        private readonly IKaikkiParser _kaikkiParser;
 
-        public WordServiceController(IWordService wordService)
+        public WordServiceController(IKaikkiParser kaikkiParser)
         {
-            _wordService = wordService;
+            _kaikkiParser = kaikkiParser;
         }
 
-        [HttpGet(Name = "LoadWords")]
-        public async Task<IActionResult> LoadWords()
+        [UserRoleAuthentication(RequiredRole = UserRoleEnum.MaintenanceUser)]
+        [HttpPost(Name = "Execute")]
+        public async Task Execute()
         {
-            try
+            await _kaikkiParser.ParseFileStream(new List<KaikkiExtractionTypeEnum>
             {
-                await _wordService.ExecuteWordService(Shared.Enums.WordServiceType.Kaikki);
-                return new OkResult();
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (not shown here for brevity)
-                return new StatusCodeResult(500); // Internal Server Error
-            }
+               KaikkiExtractionTypeEnum.GermanExtractions,
+               KaikkiExtractionTypeEnum.EnglishExtractions,
+               KaikkiExtractionTypeEnum.DanishExtractions
+            });
         }
     }
 }

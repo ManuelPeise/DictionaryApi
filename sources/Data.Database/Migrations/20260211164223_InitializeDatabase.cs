@@ -24,9 +24,10 @@ namespace Data.Database.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     FileName = table.Column<string>(type: "longtext", nullable: false),
-                    Topic = table.Column<string>(type: "longtext", nullable: false),
+                    Key = table.Column<string>(type: "longtext", nullable: false),
                     SourceLanguage = table.Column<int>(type: "int", nullable: false),
                     Translations = table.Column<string>(type: "longtext", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     FileBytes = table.Column<string>(type: "longtext", nullable: false),
                     IsImportedSuccessful = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -48,7 +49,7 @@ namespace Data.Database.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     ResourceKey = table.Column<string>(type: "longtext", nullable: false),
-                    LanguageType = table.Column<int>(type: "int", nullable: false),
+                    TranslationType = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -166,15 +167,14 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "VocabularyEntity",
+                name: "VocabularyTopicTable",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    VocabularyGuid = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Topic = table.Column<string>(type: "longtext", nullable: false),
-                    PartOfSpeachId = table.Column<int>(type: "int", nullable: false),
-                    LanguageEntityId = table.Column<int>(type: "int", nullable: true),
+                    GroupGuid = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    SourceLanguage = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -182,18 +182,7 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VocabularyEntity", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VocabularyEntity_LanguageTable_LanguageEntityId",
-                        column: x => x.LanguageEntityId,
-                        principalTable: "LanguageTable",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_VocabularyEntity_PartOfSpeachTable_PartOfSpeachId",
-                        column: x => x.PartOfSpeachId,
-                        principalTable: "PartOfSpeachTable",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                    table.PrimaryKey("PK_VocabularyTopicTable", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -236,18 +225,20 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "TranslationEntity",
+                name: "VocabularyTable",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    VocabularyGuid = table.Column<Guid>(type: "char(36)", nullable: false),
+                    GroupGuid = table.Column<Guid>(type: "char(36)", nullable: false),
                     Word = table.Column<string>(type: "longtext", nullable: false),
-                    Ipa = table.Column<string>(type: "longtext", nullable: false),
-                    Sentence = table.Column<string>(type: "longtext", nullable: false),
-                    VocabularyId = table.Column<int>(type: "int", nullable: false),
+                    Article = table.Column<string>(type: "longtext", nullable: true),
+                    ExampleSentence = table.Column<string>(type: "longtext", nullable: true),
+                    Ipa = table.Column<string>(type: "longtext", nullable: true),
+                    IsReviewRequired = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     LanguageId = table.Column<int>(type: "int", nullable: false),
-                    Synonyms = table.Column<string>(type: "longtext", nullable: false),
+                    PartOfSpeechId = table.Column<int>(type: "int", nullable: false),
+                    TopicId = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -255,17 +246,23 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TranslationEntity", x => x.Id);
+                    table.PrimaryKey("PK_VocabularyTable", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TranslationEntity_LanguageTable_LanguageId",
+                        name: "FK_VocabularyTable_LanguageTable_LanguageId",
                         column: x => x.LanguageId,
                         principalTable: "LanguageTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_TranslationEntity_VocabularyEntity_VocabularyId",
-                        column: x => x.VocabularyId,
-                        principalTable: "VocabularyEntity",
+                        name: "FK_VocabularyTable_PartOfSpeachTable_PartOfSpeechId",
+                        column: x => x.PartOfSpeechId,
+                        principalTable: "PartOfSpeachTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VocabularyTable_VocabularyTopicTable_TopicId",
+                        column: x => x.TopicId,
+                        principalTable: "VocabularyTopicTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -273,12 +270,12 @@ namespace Data.Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "LanguageTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "LanguageType", "Name", "ResourceKey", "UpdatedAt", "UpdatedBy" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Name", "ResourceKey", "TranslationType", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 2, "German", "LanguageGerman", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 0, "English", "LanguageEnglish", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 1, "Danish", "LanguageDanish", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
+                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", "German", "LanguageGerman", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", "English", "LanguageEnglish", 0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", "Danish", "LanguageDanish", 2, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
                 });
 
             migrationBuilder.InsertData(
@@ -297,6 +294,11 @@ namespace Data.Database.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "ScheduledTaskTable",
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Interval", "LastFireTime", "Message", "RequestUrl", "ScheduledFireTime", "Status", "Type", "UpdatedAt", "UpdatedBy" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 0, null, "Load words from Kaikki.org", "http://localhost:5000/api/WordService/Execute", null, 0, 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
+
+            migrationBuilder.InsertData(
                 table: "UserCredentialsTable",
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "ExpireDate", "PasswordHash", "RefreshToken", "UpdatedAt", "UpdatedBy" },
                 values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
@@ -312,16 +314,6 @@ namespace Data.Database.Migrations
                 values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1980, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin.user@app.com", "Admin", "User", new byte[0], new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", 1, "95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d", 1, 1 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TranslationEntity_LanguageId",
-                table: "TranslationEntity",
-                column: "LanguageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TranslationEntity_VocabularyId",
-                table: "TranslationEntity",
-                column: "VocabularyId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserTable_UserCredentialsId",
                 table: "UserTable",
                 column: "UserCredentialsId");
@@ -332,14 +324,19 @@ namespace Data.Database.Migrations
                 column: "UserSettingsId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VocabularyEntity_LanguageEntityId",
-                table: "VocabularyEntity",
-                column: "LanguageEntityId");
+                name: "IX_VocabularyTable_LanguageId",
+                table: "VocabularyTable",
+                column: "LanguageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VocabularyEntity_PartOfSpeachId",
-                table: "VocabularyEntity",
-                column: "PartOfSpeachId");
+                name: "IX_VocabularyTable_PartOfSpeechId",
+                table: "VocabularyTable",
+                column: "PartOfSpeechId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularyTable_TopicId",
+                table: "VocabularyTable",
+                column: "TopicId");
         }
 
         /// <inheritdoc />
@@ -355,13 +352,10 @@ namespace Data.Database.Migrations
                 name: "ScheduledTaskTable");
 
             migrationBuilder.DropTable(
-                name: "TranslationEntity");
-
-            migrationBuilder.DropTable(
                 name: "UserTable");
 
             migrationBuilder.DropTable(
-                name: "VocabularyEntity");
+                name: "VocabularyTable");
 
             migrationBuilder.DropTable(
                 name: "UserCredentialsTable");
@@ -374,6 +368,9 @@ namespace Data.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "PartOfSpeachTable");
+
+            migrationBuilder.DropTable(
+                name: "VocabularyTopicTable");
         }
     }
 }

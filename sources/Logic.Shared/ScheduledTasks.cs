@@ -8,6 +8,7 @@ using Shared.Enums;
 using Shared.Models.Scheduler;
 using Shared.Models.Settings;
 using System.Net;
+using System.Net.Http.Headers;
 
 namespace Logic.Shared
 {
@@ -28,8 +29,9 @@ namespace Logic.Shared
             _apiSettings = apiSettings.Value;
             _httpClient = new HttpClient
             {
-                BaseAddress = new Uri(_apiSettings.BaseUrl)
+                Timeout = Timeout.InfiniteTimeSpan
             };
+           
         }
 
         public async Task<List<ScheduledTask>> GetScheduledTasks()
@@ -66,10 +68,11 @@ namespace Logic.Shared
             }
         }
 
-        public async Task ExecuteTask(int id)
+        public async Task ExecuteScheduledTask(int id)
         {
             try
             {
+                var fireTime = DateTime.UtcNow;
                 var currentUser = GetCurrentUser();
 
                 var task = await UnitOfWork.ScheduledTaskRepository.FirstOrDefaultByIdAsync(id);
@@ -79,7 +82,7 @@ namespace Logic.Shared
                     throw new Exception($"Scheduled task with id {id} not found.");
                 }
 
-                await ExecuteTask(task);
+                await ExecuteTask(task, fireTime);
 
                 await UnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
             }
@@ -124,14 +127,13 @@ namespace Logic.Shared
         {
             try
             {
+                var fireTime = DateTime.UtcNow;
 
                 var pendingTasks = await GetPendingTasks();
 
                 foreach (var task in pendingTasks)
                 {
-                    await ExecuteTask(task);
-
-                    // await UnitOfWork.ScheduledTaskRepository.UpdateAsync(task);
+                    await ExecuteTask(task, fireTime);
                 }
 
                 await UnitOfWork.SaveChangesAsync("System");
@@ -189,7 +191,7 @@ namespace Logic.Shared
                     url = $"VocabularyImport/ExecuteVocabularyTask";
                     break;
                 case ScheduledTaskType.KaikkiWordService:
-                    url = $"";
+                    url = $"WordService/Execute";
                     break;
                 default:
                     throw new NotImplementedException($"No execution logic implemented for task type {taskType}");
@@ -225,9 +227,12 @@ namespace Logic.Shared
                 var requestMessage = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri(task.RequestUrl, UriKind.Relative),
-                    Version = HttpVersion.Version11
+                    RequestUri = new Uri(task.RequestUrl, UriKind.Absolute),
+                    Version = HttpVersion.Version11,
+                   
                 };
+
+                requestMessage.Headers.Add("X-Schedule-Job", "true");
 
                 var response = await _httpClient.SendAsync(requestMessage);
 
@@ -237,6 +242,7 @@ namespace Logic.Shared
                 {
                     task.Status = ScheduledTaskStatus.Completed;
                     task.LastFireTime = executionTime;
+                    task.Message = $"Task executed successfully with status code {response.StatusCode}";
                 }
                 else
                 {
@@ -244,8 +250,6 @@ namespace Logic.Shared
                     task.ScheduledFireTime = executionTime.Add(GetIntervalTimeSpan(task.Interval));
                     task.LastFireTime = executionTime;
                 }
-
-                task.Message = $"Task executed successfully with status code {response.StatusCode}";
             }
             catch (Exception exception)
             {

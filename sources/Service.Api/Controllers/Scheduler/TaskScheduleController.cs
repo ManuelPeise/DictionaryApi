@@ -24,14 +24,14 @@ namespace Service.Api.Controllers.Scheduler
         [HttpPost(Name = "CreateTask")]
         public async Task CreateTask([FromBody] SceduledTaskRequest request)
         {
-            await _scheduledTasks.ScheduleTask(request.Type, request.Message);
+            await _scheduledTasks.ScheduleTask(request);
         }
 
         [ApiAuthentication(RequiredRole = UserRoleEnum.Admin)]
         [HttpPost(Name = "ExecuteTask")]
         public async Task ExecuteTask([FromQuery] int  id)
         {
-            await _scheduledTasks.ExecuteTask(id);
+            await _scheduledTasks.ExecuteScheduledTask(id);
         }
 
         [ApiAuthentication(RequiredRole = UserRoleEnum.Admin)]

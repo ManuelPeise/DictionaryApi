@@ -15,8 +15,8 @@ namespace Logic.Words
         private readonly IRepositoryBase<LanguageEntity> _languageRepository;
         public IRepositoryBase<LanguageEntity> LanguageRepository => _languageRepository ?? new RepositoryBase<LanguageEntity>(_dbContext);
         
-        private readonly IRepositoryBase<PartOfSpeachEntity> _partOfSpeachRepository;
-        public IRepositoryBase<PartOfSpeachEntity> PartOfSpeachRepository => _partOfSpeachRepository ?? new RepositoryBase<PartOfSpeachEntity>(_dbContext);
+        private readonly IRepositoryBase<PartOfSpeechEntity> _partOfSpeachRepository;
+        public IRepositoryBase<PartOfSpeechEntity> PartOfSpeachRepository => _partOfSpeachRepository ?? new RepositoryBase<PartOfSpeechEntity>(_dbContext);
 
         private readonly IRepositoryBase<VocabularyEntity> _vocabularyRepository;
         public IRepositoryBase<VocabularyEntity> VocabularyRepository => _vocabularyRepository ?? new RepositoryBase<VocabularyEntity>(_dbContext);
@@ -28,7 +28,7 @@ namespace Logic.Words
         {
             _dbContext = context;
             _languageRepository = new RepositoryBase<LanguageEntity>(context);
-            _partOfSpeachRepository = new RepositoryBase<PartOfSpeachEntity>(context);
+            _partOfSpeachRepository = new RepositoryBase<PartOfSpeechEntity>(context);
             _vocabularyRepository = new RepositoryBase<VocabularyEntity>(context);
             _translationRepository = new RepositoryBase<TranslationEntity>(context);
         }

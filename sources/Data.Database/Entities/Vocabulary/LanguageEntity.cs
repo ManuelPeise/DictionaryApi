@@ -6,7 +6,6 @@ namespace Data.Database.Entities.Vocabulary
     {
         public string Name { get; set; } = string.Empty;
         public string ResourceKey { get; set; } = string.Empty;
-        public LanguageEnum LanguageType { get; set; }
-        public ICollection<VocabularyEntity> Vocabularies { get; set; } = new List<VocabularyEntity>();
+        public TranslationEnum TranslationType { get; set; }
     }
 }

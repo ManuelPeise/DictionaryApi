@@ -7,7 +7,7 @@
         internal const string KaikkiFileNameTemplate = "{Type}_Kaikki_{TimeStamp}.json";
         internal const string KaikkiJsonBackupFileName = "Kaikki_Backup.json";
         internal const string DumpFilePrefix = "Dump";
-        internal const string KaikkiBackupDateFormat = "ddMMyyyy";
+        internal const string KaikkiBackupDateFormat = "ddMMyyyyHHmmss";
         internal static readonly List<string> ValidLanguages = new List<string> { "da", "de", "en" };
         internal static readonly List<string> ValidPartsOfSpeech = new List<string>
         {

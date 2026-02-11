@@ -9,6 +9,7 @@ namespace Logic.Import.DI
         {
             services.AddScoped<IKaikkiParser, KaikkiParser>();
             services.AddScoped<IFileImporter, FileImporter>();
+            services.AddScoped<IVocabularyImporter, VocabularyImporter>();
         }
     }
 }

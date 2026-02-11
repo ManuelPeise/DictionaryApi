@@ -7,17 +7,18 @@ using Logic.Shared.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Shared.Enums;
 using Shared.Models.Import;
+using Shared.Models.Scheduler;
 
 namespace Logic.Import
 {
     public class FileImporter : LogicBase, IFileImporter
     {
         private readonly Logger<FileImporter> _logger;
-       
+
         private readonly IScheduledTasks _scheduledTasks;
-        
+
         public FileImporter(
-            DatabaseContext dbContext, 
+            DatabaseContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IUnitOfWork unitOfWork,
             IScheduledTasks scheduledTasks)
@@ -45,9 +46,21 @@ namespace Logic.Import
                     throw new ArgumentNullException(nameof(fileUploadModel));
                 }
 
-                await _scheduledTasks.ScheduleTask(
-                    ScheduledTaskType.VocabularyImportService, 
-                    $"Vocabulary import scheduled with status pending.");
+                var currentUser = GetCurrentUser();
+
+                var importFileEntity = CreateImportFileEntity(fileUploadModel);
+
+                await UnitOfWork.ImportFileRepository.AddAsync(importFileEntity);
+
+                await _scheduledTasks.ScheduleTask(new SceduledTaskRequest
+                {
+                    Type = ScheduledTaskType.VocabularyImportService,
+                    Message = $"Vocabulary import scheduled with status pending.",
+                    FireTime = null,
+                    Interval = ScheduleInterval.None,
+                });
+
+                await UnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
             }
             catch (Exception exception)
             {
@@ -60,7 +73,6 @@ namespace Logic.Import
             }
         }
 
-
         private ImportFileEntity CreateImportFileEntity(VocabularyFileUpload fileUploadModel)
         {
 
@@ -68,9 +80,10 @@ namespace Logic.Import
             {
                 FileName = fileUploadModel.FileName,
                 FileBytes = fileUploadModel.File,
-                Topic = fileUploadModel.Topic,
+                Key = fileUploadModel.Topic,
                 SourceLanguage = fileUploadModel.SourceLanguage,
                 Translations = fileUploadModel.Translations,
+                Status = FileImportStatus.Pending,
                 IsImportedSuccessful = false
             };
 
@@ -78,111 +91,5 @@ namespace Logic.Import
 
         }
 
-        private List<VocabularyImportWordModel> ParseVocabularyFileAsync(VocabularyFileUpload fileUploadModel)
-        {
-            var vocabularyEntries = new List<VocabularyImportWordModel>();
-
-            if (!fileUploadModel.File.Any())
-            {
-                return vocabularyEntries;
-            }
-
-            var lines = ReadFileLines(fileUploadModel.File);
-
-            if (!lines.Any())
-            {
-                return vocabularyEntries;
-            }
-
-            var vocabularyModels = ParseLines(lines, GetMappedColums(lines.First()), fileUploadModel);
-           
-            return vocabularyModels;
-        }
-
-        private List<string> ReadFileLines(List<byte> fileBytes)
-        {
-            var lines = new List<string>();
-            using (var stream = new MemoryStream(fileBytes.ToArray()))
-            using (var reader = new StreamReader(stream))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        lines.Add(line);
-                    }
-                }
-            }
-            return lines;
-        }
-
-        private Dictionary<string, int> GetMappedColums(string headerRow)
-        {
-            var columnDefinition = GetColumnDefinition();
-
-            var headerColumns = headerRow.Split(',');
-
-            foreach (var column in headerColumns)
-            {
-                if (columnDefinition.TryGetValue(column, out var entry))
-                {
-                    columnDefinition[column] = Array.IndexOf(headerColumns, column);
-                }
-            }
-
-            return columnDefinition;
-        }
-
-        private Dictionary<string, int> GetColumnDefinition()
-        {
-            return new Dictionary<string, int>
-            {
-                { "Word", -1 },
-                { "Language", -1  },
-                { "PartOfSpeech", -1 },
-                { "Sentence", -1 }
-            };
-        }
-
-        private List<VocabularyImportWordModel> ParseLines(List<string> lines, Dictionary<string, int> columnMapping, VocabularyFileUpload uploadModel)
-        {
-            var vocabularyEntries = new List<VocabularyImportWordModel>();
-
-            foreach (var line in lines.Skip(1))
-            {
-                var columns = line.Split(',');
-
-                var language = (TranslationEnum)Enum.Parse(typeof(TranslationEnum), columns[columnMapping["Language"]] ?? uploadModel.SourceLanguage.ToString());
-
-                var wordModel = new VocabularyImportWordModel
-                {
-                    Word = columns[columnMapping["Word"]],
-                    Language = language,
-                    PartOfSpeach = columns[columnMapping["PartOfSpeach"]],
-                    ExampleSentence = columns[columnMapping["Sentence"]],
-                    Ipa = string.Empty,
-                    Translations = new List<VocabularyImportWordModel>()
-                };
-
-                vocabularyEntries.Add(wordModel);
-            }
-            return vocabularyEntries;
-        }
-
-        private KaikkiExtractionTypeEnum GetExtratctionType(TranslationEnum translationType)
-        {
-            switch (translationType)
-            {
-                case TranslationEnum.En:
-                    return KaikkiExtractionTypeEnum.EnglishExtractions;
-                case TranslationEnum.De:
-                    return KaikkiExtractionTypeEnum.GermanExtractions;
-                case TranslationEnum.Da:
-                    return KaikkiExtractionTypeEnum.DanishExtractions;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(translationType), $"Unsupported translation type: {translationType}");
-            }
-        }
     }
 }
