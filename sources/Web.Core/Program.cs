@@ -13,6 +13,6 @@ app.ConfigureApplication(corsPolicy);
 
 Database.Migrate(app);
 
-await Scheduler.StartScheduler(app.Services);
+// await Scheduler.StartScheduler(app.Services);
 
 app.Run();

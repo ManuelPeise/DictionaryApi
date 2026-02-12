@@ -9,6 +9,7 @@ namespace Data.Accessor.DI
         {
             services.AddScoped(typeof(IRepositoryBase<>), typeof(RepositoryBase<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IVocabularyUnitOfWork, VocabularyUnitOfWork>();
         }
     }
 }

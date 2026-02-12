@@ -16,8 +16,6 @@ namespace Data.Database.Entities.Vocabulary
         public int PartOfSpeechId { get; set; }
         [ForeignKey(nameof(PartOfSpeechId))]
         public PartOfSpeechEntity PartOfSpeech { get; set; }
-        public int TopicId { get; set; }
-        [ForeignKey(nameof(TopicId))]
-        public VocabularyTopicEntity Topic { get; set; }
+        public ICollection<VocabularyToCategoryEntity> VocabulatyToCategoryEntities { get; set; } = new List<VocabularyToCategoryEntity>();
     }
 }

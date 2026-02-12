@@ -167,7 +167,7 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "VocabularyTopicTable",
+                name: "VocabularyCategoryTable",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -182,7 +182,44 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VocabularyTopicTable", x => x.Id);
+                    table.PrimaryKey("PK_VocabularyCategoryTable", x => x.Id);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "VocabularyTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    GroupGuid = table.Column<Guid>(type: "char(36)", nullable: false),
+                    Word = table.Column<string>(type: "longtext", nullable: false),
+                    Article = table.Column<string>(type: "longtext", nullable: true),
+                    ExampleSentence = table.Column<string>(type: "longtext", nullable: true),
+                    Ipa = table.Column<string>(type: "longtext", nullable: true),
+                    IsReviewRequired = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    LanguageId = table.Column<int>(type: "int", nullable: false),
+                    PartOfSpeechId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocabularyTable", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VocabularyTable_LanguageTable_LanguageId",
+                        column: x => x.LanguageId,
+                        principalTable: "LanguageTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_VocabularyTable_PartOfSpeachTable_PartOfSpeechId",
+                        column: x => x.PartOfSpeechId,
+                        principalTable: "PartOfSpeachTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
 
@@ -225,20 +262,14 @@ namespace Data.Database.Migrations
                 .Annotation("MySQL:Charset", "utf8mb4");
 
             migrationBuilder.CreateTable(
-                name: "VocabularyTable",
+                name: "VocabularySessionTable",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    GroupGuid = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Word = table.Column<string>(type: "longtext", nullable: false),
-                    Article = table.Column<string>(type: "longtext", nullable: true),
-                    ExampleSentence = table.Column<string>(type: "longtext", nullable: true),
-                    Ipa = table.Column<string>(type: "longtext", nullable: true),
-                    IsReviewRequired = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    LanguageId = table.Column<int>(type: "int", nullable: false),
-                    PartOfSpeechId = table.Column<int>(type: "int", nullable: false),
-                    TopicId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    SessionType = table.Column<int>(type: "int", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
@@ -246,23 +277,130 @@ namespace Data.Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_VocabularyTable", x => x.Id);
+                    table.PrimaryKey("PK_VocabularySessionTable", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_VocabularyTable_LanguageTable_LanguageId",
-                        column: x => x.LanguageId,
-                        principalTable: "LanguageTable",
+                        name: "FK_VocabularySessionTable_VocabularyCategoryTable_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "VocabularyCategoryTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "VocabularyToCategoriesTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    VocabularyId = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocabularyToCategoriesTable", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VocabularyToCategoriesTable_VocabularyCategoryTable_Category~",
+                        column: x => x.CategoryId,
+                        principalTable: "VocabularyCategoryTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VocabularyTable_PartOfSpeachTable_PartOfSpeechId",
-                        column: x => x.PartOfSpeechId,
-                        principalTable: "PartOfSpeachTable",
+                        name: "FK_VocabularyToCategoriesTable_VocabularyTable_VocabularyId",
+                        column: x => x.VocabularyId,
+                        principalTable: "VocabularyTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "VocabularyProgressTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    TimesSeen = table.Column<int>(type: "int", nullable: false),
+                    Success = table.Column<int>(type: "int", nullable: false),
+                    Failed = table.Column<int>(type: "int", nullable: false),
+                    VocabularyId = table.Column<int>(type: "int", nullable: false),
+                    VocabularySessionEntityId = table.Column<int>(type: "int", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocabularyProgressTable", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VocabularyProgressTable_VocabularySessionTable_VocabularySes~",
+                        column: x => x.VocabularySessionEntityId,
+                        principalTable: "VocabularySessionTable",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_VocabularyProgressTable_VocabularyTable_VocabularyId",
+                        column: x => x.VocabularyId,
+                        principalTable: "VocabularyTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "VocabularySessionResultTable",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    Start = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    End = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Success = table.Column<int>(type: "int", nullable: false),
+                    Failed = table.Column<int>(type: "int", nullable: false),
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocabularySessionResultTable", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VocabularySessionResultTable_VocabularySessionTable_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "VocabularySessionTable",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                })
+                .Annotation("MySQL:Charset", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "VocabularySessionVocabulary",
+                columns: table => new
+                {
+                    SessionId = table.Column<int>(type: "int", nullable: false),
+                    VocabularyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VocabularySessionVocabulary", x => new { x.SessionId, x.VocabularyId });
+                    table.ForeignKey(
+                        name: "FK_VocabularySessionVocabulary_VocabularySessionTable_SessionId",
+                        column: x => x.SessionId,
+                        principalTable: "VocabularySessionTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VocabularyTable_VocabularyTopicTable_TopicId",
-                        column: x => x.TopicId,
-                        principalTable: "VocabularyTopicTable",
+                        name: "FK_VocabularySessionVocabulary_VocabularyTable_VocabularyId",
+                        column: x => x.VocabularyId,
+                        principalTable: "VocabularyTable",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 })
@@ -324,6 +462,31 @@ namespace Data.Database.Migrations
                 column: "UserSettingsId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_VocabularyProgressTable_VocabularyId",
+                table: "VocabularyProgressTable",
+                column: "VocabularyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularyProgressTable_VocabularySessionEntityId",
+                table: "VocabularyProgressTable",
+                column: "VocabularySessionEntityId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularySessionResultTable_SessionId",
+                table: "VocabularySessionResultTable",
+                column: "SessionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularySessionTable_CategoryId",
+                table: "VocabularySessionTable",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularySessionVocabulary_VocabularyId",
+                table: "VocabularySessionVocabulary",
+                column: "VocabularyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_VocabularyTable_LanguageId",
                 table: "VocabularyTable",
                 column: "LanguageId");
@@ -334,9 +497,15 @@ namespace Data.Database.Migrations
                 column: "PartOfSpeechId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VocabularyTable_TopicId",
-                table: "VocabularyTable",
-                column: "TopicId");
+                name: "IX_VocabularyToCategoriesTable_CategoryId",
+                table: "VocabularyToCategoriesTable",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VocabularyToCategoriesTable_VocabularyId_CategoryId",
+                table: "VocabularyToCategoriesTable",
+                columns: new[] { "VocabularyId", "CategoryId" },
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -355,7 +524,16 @@ namespace Data.Database.Migrations
                 name: "UserTable");
 
             migrationBuilder.DropTable(
-                name: "VocabularyTable");
+                name: "VocabularyProgressTable");
+
+            migrationBuilder.DropTable(
+                name: "VocabularySessionResultTable");
+
+            migrationBuilder.DropTable(
+                name: "VocabularySessionVocabulary");
+
+            migrationBuilder.DropTable(
+                name: "VocabularyToCategoriesTable");
 
             migrationBuilder.DropTable(
                 name: "UserCredentialsTable");
@@ -364,13 +542,19 @@ namespace Data.Database.Migrations
                 name: "UserSettingsTable");
 
             migrationBuilder.DropTable(
+                name: "VocabularySessionTable");
+
+            migrationBuilder.DropTable(
+                name: "VocabularyTable");
+
+            migrationBuilder.DropTable(
+                name: "VocabularyCategoryTable");
+
+            migrationBuilder.DropTable(
                 name: "LanguageTable");
 
             migrationBuilder.DropTable(
                 name: "PartOfSpeachTable");
-
-            migrationBuilder.DropTable(
-                name: "VocabularyTopicTable");
         }
     }
 }

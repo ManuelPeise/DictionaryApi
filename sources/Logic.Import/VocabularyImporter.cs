@@ -168,7 +168,7 @@ namespace Logic.Import
         {
             var columnDefinition = GetColumnDefinition();
 
-            var headerColumns = headerRow.Split(',');
+            var headerColumns = headerRow.Split(',').Select(c => c.Trim()).ToArray();
 
             foreach (var column in headerColumns)
             {

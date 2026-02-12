@@ -2,26 +2,24 @@ import React from 'react';
 import StatelessApi from './statelessApi';
 import { useAuth } from './useAuth';
 
-export type StatefulApiProps<TRequestModel> = {
+export type StatefulApiProps = {
   requestUrl: string;
   method: 'GET' | 'POST';
   params?: Record<string, string>;
 };
 
-export type StatefullApiResult<TRequestModel, TResponseModel> = {
+export type StatefullApiResult<TResponseModel> = {
   data: TResponseModel | null;
   error: Error | null;
   isLoading: boolean;
-  sendGetRequest: (options?: StatefulApiProps<TRequestModel>) => Promise<void>;
-  sendPostRequest: (
-    model: TRequestModel,
-    options?: StatefulApiProps<TRequestModel>,
-  ) => Promise<void>;
+  sendGetRequest: (options?: StatefulApiProps) => Promise<void>;
+  sendPostRequest: (model: any, options: StatefulApiProps) => Promise<void>;
+  rebindData: (options?: StatefulApiProps) => Promise<void>;
 };
 
-const useStatefullApi = <TRequestModel, TResponseModel>(
-  props: StatefulApiProps<TRequestModel>,
-): StatefullApiResult<TRequestModel, TResponseModel> => {
+const useStatefullApi = <TResponseModel>(
+  props: StatefulApiProps,
+): StatefullApiResult<TResponseModel> => {
   const propsRef = React.useRef(props);
   const { getTokens } = useAuth();
 
@@ -37,84 +35,90 @@ const useStatefullApi = <TRequestModel, TResponseModel>(
     return queryString ? `${url}?${queryString}` : url;
   };
 
-  const addAuthHeader = (headers: HeadersInit): HeadersInit => {
-    const tokens = getTokens();
+  const addAuthHeader = React.useCallback(
+    (headers: HeadersInit): HeadersInit => {
+      const tokens = getTokens();
 
-    if (tokens?.accessToken) {
-      return {
-        ...headers,
-        Authorization: `Bearer ${tokens.accessToken}`,
-      };
-    }
-    return headers;
-  };
-
-  const sendGetRequest = async (options?: StatefulApiProps<TRequestModel>): Promise<void> => {
-    try {
-      if (options) {
-        propsRef.current = { ...propsRef.current, ...options };
+      if (tokens?.accessToken) {
+        return {
+          ...headers,
+          Authorization: `Bearer ${tokens.accessToken}`,
+        };
       }
-      setIsLoading(true);
+      return headers;
+    },
+    [getTokens],
+  );
 
-      const response = await fetch(
-        buildRequestUrl(propsRef.current.requestUrl, propsRef.current.params),
-        {
-          method: 'GET',
-          body: null,
-          mode: 'cors',
-          headers: addAuthHeader({
-            'Content-Type': 'application/json',
-          }),
-        },
-      );
+  const sendGetRequest = React.useCallback(
+    async (options?: StatefulApiProps): Promise<void> => {
+      try {
+        setIsLoading(true);
 
-      if (response.ok) {
-        const responseData = (await response.json()) as TResponseModel;
-        setData(responseData);
-      } else {
-        throw new Error(`Request failed with status ${response.status}`);
+        const response = await fetch(
+          options
+            ? buildRequestUrl(options.requestUrl, options.params)
+            : buildRequestUrl(propsRef.current.requestUrl, propsRef.current.params),
+          {
+            method: 'GET',
+            body: null,
+            mode: 'cors',
+            headers: addAuthHeader({
+              'Content-Type': 'application/json',
+            }),
+          },
+        );
+
+        if (response.ok) {
+          const responseData = (await response.json()) as TResponseModel;
+          setData(responseData);
+        } else {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      setError(error as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [addAuthHeader],
+  );
 
-  const sendPostRequest = async (
-    model: TRequestModel,
-    options?: StatefulApiProps<TRequestModel>,
-  ): Promise<void> => {
-    try {
-      if (options) {
-        propsRef.current = { ...propsRef.current, ...options };
-      }
-      setIsLoading(true);
+  const sendPostRequest = React.useCallback(
+    async (model: any, options: StatefulApiProps): Promise<void> => {
+      try {
+        setIsLoading(true);
 
-      const response = await fetch(
-        buildRequestUrl(propsRef.current.requestUrl, propsRef.current.params),
-        {
+        const response = await fetch(buildRequestUrl(options.requestUrl, options.params), {
           method: 'POST',
           body: JSON.stringify(model),
           mode: 'cors',
           headers: addAuthHeader({
             'Content-Type': 'application/json',
           }),
-        },
-      );
+        });
 
-      if (response.ok) {
-        const responseData = (await response.json()) as TResponseModel;
-        setData(responseData);
-      } else {
-        throw new Error(`Request failed with status ${response.status}`);
+        if (response.ok) {
+          const responseData = (await response.json()) as TResponseModel;
+          setData(responseData);
+        } else {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+      } catch (error) {
+        setError(error as Error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      setError(error as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [addAuthHeader],
+  );
+
+  const rebindData = React.useCallback(
+    async (options?: StatefulApiProps) => {
+      await sendGetRequest(options);
+    },
+    [sendGetRequest],
+  );
 
   React.useEffect(() => {
     if (propsRef.current.method === 'GET') {
@@ -127,6 +131,7 @@ const useStatefullApi = <TRequestModel, TResponseModel>(
       };
       sendRequest();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propsRef.current]);
 
   return {
@@ -135,6 +140,7 @@ const useStatefullApi = <TRequestModel, TResponseModel>(
     isLoading,
     sendGetRequest,
     sendPostRequest,
+    rebindData,
   };
 };
 

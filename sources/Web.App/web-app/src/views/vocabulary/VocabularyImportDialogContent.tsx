@@ -15,10 +15,11 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
     sourceLanguage: TranslationEnum.De,
     translations: [],
     file: [],
+    fileName: '',
   });
 
-  const api = useApi.useStatefullApi<IVocabularyFileUpload, void>({
-    requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabulary`,
+  const api = useApi.useStatefullApi<void>({
+    requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
     method: 'POST',
   });
 
@@ -47,6 +48,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
 
       setImportModel((prev) => ({
         ...prev,
+        fileName: files[0].name,
         file: byteArray,
       }));
     }
@@ -92,10 +94,9 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
   );
 
   const handleImportFile = React.useCallback(async () => {
-    console.log(importModel);
     await api
       .sendPostRequest(importModel, {
-        requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabulary`,
+        requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
         method: 'POST',
       })
       .then(() => {
@@ -104,6 +105,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
           sourceLanguage: TranslationEnum.De,
           translations: [],
           file: [],
+          fileName: '',
         });
       });
   }, [importModel, api]);

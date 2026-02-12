@@ -6,6 +6,7 @@ using Data.Database.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shared.Models.Settings;
+using System.Collections.Generic;
 
 namespace Data.Database
 {
@@ -25,6 +26,41 @@ namespace Data.Database
             modelBuilder.ApplyConfiguration(new LanguageSeed());
             modelBuilder.ApplyConfiguration(new PartOfSpeachSeed());
             modelBuilder.ApplyConfiguration(new ScheduledTaskSeed(_apiSettings));
+
+            modelBuilder.Entity<VocabularyToCategoryEntity>(entity =>
+            {
+                entity.HasIndex(e => new { e.VocabularyId, e.CategoryId }).IsUnique();
+
+                entity.HasOne(e => e.Vocabulary)
+                    .WithMany(v => v.VocabulatyToCategoryEntities)
+                    .HasForeignKey(e => e.VocabularyId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.Category)
+                    .WithMany(c => c.VocabulariesToCategoryEntities)
+                    .HasForeignKey(e => e.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<VocabularySessionEntity>(entity =>
+            {
+                entity.HasMany(e => e.Vocabularies)
+                    .WithMany()
+                    .UsingEntity<Dictionary<string, object>>(
+                        "VocabularySessionVocabulary",
+                        j => j.HasOne<VocabularyEntity>()
+                            .WithMany()
+                            .HasForeignKey("VocabularyId")
+                            .OnDelete(DeleteBehavior.Cascade),
+                        j => j.HasOne<VocabularySessionEntity>()
+                            .WithMany()
+                            .HasForeignKey("SessionId")
+                            .OnDelete(DeleteBehavior.Cascade),
+                        j =>
+                        {
+                            j.HasKey("SessionId", "VocabularyId");
+                        });
+            });
         }
 
         public DbSet<UserEntity> UserTable { get; set; }
@@ -36,7 +72,11 @@ namespace Data.Database
         public DbSet<LanguageEntity> LanguageTable { get; set; }
         public DbSet<PartOfSpeechEntity> PartOfSpeachTable { get; set; }
         public DbSet<VocabularyEntity> VocabularyTable { get; set; }
-        public DbSet<VocabularyTopicEntity> VocabularyTopicTable { get; set; }
+        public DbSet<VocabularyCategoryEntity> VocabularyCategoryTable { get; set; }
+        public DbSet<VocabularyToCategoryEntity> VocabularyToCategoriesTable { get; set; }
+        public DbSet<VocabularySessionEntity> VocabularySessionTable { get; set; }
+        public DbSet<VocabularySessionResultEntity> VocabularySessionResultTable { get; set; }
+        public DbSet<VocabularyProgressEntity> VocabularyProgressTable { get; set; }
 
         // files
         public DbSet<ImportFileEntity> ImportFileTable { get; set; }

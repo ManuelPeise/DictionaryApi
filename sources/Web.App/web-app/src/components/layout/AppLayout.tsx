@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { AppBar, Avatar, Container, FormLabel, Grid, IconButton, Toolbar } from '@mui/material';
+import { AppBar, Avatar, FormLabel, Grid, IconButton, Toolbar } from '@mui/material';
 import { LogoutOutlined, PersonOutlineOutlined } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import '../../lib/style/global.css';
@@ -72,8 +72,8 @@ const AppLayout: React.FC<IProps> = (props) => {
           </Toolbar>
         </AppBar>
       </Grid>
-      <Grid size={12} style={{ marginTop: '20px' }}>
-        <Container maxWidth="lg">{children}</Container>
+      <Grid size={12} padding={'1rem'} style={{ marginTop: '20px' }}>
+        {children}
       </Grid>
     </Grid>
   );

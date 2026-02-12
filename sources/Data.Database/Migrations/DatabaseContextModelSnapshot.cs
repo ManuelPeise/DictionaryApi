@@ -533,6 +533,41 @@ namespace Data.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyCategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<Guid>("GroupGuid")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SourceLanguage")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VocabularyCategoryTable");
+                });
+
             modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -567,9 +602,6 @@ namespace Data.Database.Migrations
                     b.Property<int>("PartOfSpeechId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TopicId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -587,12 +619,10 @@ namespace Data.Database.Migrations
 
                     b.HasIndex("PartOfSpeechId");
 
-                    b.HasIndex("TopicId");
-
                     b.ToTable("VocabularyTable");
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyProgressEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -605,14 +635,13 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<Guid>("GroupGuid")
-                        .HasColumnType("char(36)");
+                    b.Property<int>("Failed")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int>("Success")
+                        .HasColumnType("int");
 
-                    b.Property<int>("SourceLanguage")
+                    b.Property<int>("TimesSeen")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -622,9 +651,154 @@ namespace Data.Database.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VocabularyId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VocabularySessionEntityId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.ToTable("VocabularyTopicTable");
+                    b.HasIndex("VocabularyId");
+
+                    b.HasIndex("VocabularySessionEntityId");
+
+                    b.ToTable("VocabularyProgressTable");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularySessionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SessionType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.ToTable("VocabularySessionTable");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularySessionResultEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("End")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Failed")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Start")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("Success")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessionId");
+
+                    b.ToTable("VocabularySessionResultTable");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyToCategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("VocabularyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("VocabularyId", "CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("VocabularyToCategoriesTable");
+                });
+
+            modelBuilder.Entity("VocabularySessionVocabulary", b =>
+                {
+                    b.Property<int>("SessionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("VocabularyId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SessionId", "VocabularyId");
+
+                    b.HasIndex("VocabularyId");
+
+                    b.ToTable("VocabularySessionVocabulary");
                 });
 
             modelBuilder.Entity("Data.Database.Entities.User.UserEntity", b =>
@@ -660,22 +834,97 @@ namespace Data.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", "Topic")
-                        .WithMany("Vocabularies")
-                        .HasForeignKey("TopicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Language");
 
                     b.Navigation("PartOfSpeech");
-
-                    b.Navigation("Topic");
                 });
 
-            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyTopicEntity", b =>
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyProgressEntity", b =>
                 {
-                    b.Navigation("Vocabularies");
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyEntity", "Vocabulary")
+                        .WithMany()
+                        .HasForeignKey("VocabularyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularySessionEntity", null)
+                        .WithMany("SessionProgress")
+                        .HasForeignKey("VocabularySessionEntityId");
+
+                    b.Navigation("Vocabulary");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularySessionEntity", b =>
+                {
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyCategoryEntity", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularySessionResultEntity", b =>
+                {
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularySessionEntity", "Session")
+                        .WithMany("Results")
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Session");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyToCategoryEntity", b =>
+                {
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyCategoryEntity", "Category")
+                        .WithMany("VocabulariesToCategoryEntities")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyEntity", "Vocabulary")
+                        .WithMany("VocabulatyToCategoryEntities")
+                        .HasForeignKey("VocabularyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Vocabulary");
+                });
+
+            modelBuilder.Entity("VocabularySessionVocabulary", b =>
+                {
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularySessionEntity", null)
+                        .WithMany()
+                        .HasForeignKey("SessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Database.Entities.Vocabulary.VocabularyEntity", null)
+                        .WithMany()
+                        .HasForeignKey("VocabularyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyCategoryEntity", b =>
+                {
+                    b.Navigation("VocabulariesToCategoryEntities");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularyEntity", b =>
+                {
+                    b.Navigation("VocabulatyToCategoryEntities");
+                });
+
+            modelBuilder.Entity("Data.Database.Entities.Vocabulary.VocabularySessionEntity", b =>
+                {
+                    b.Navigation("Results");
+
+                    b.Navigation("SessionProgress");
                 });
 #pragma warning restore 612, 618
         }

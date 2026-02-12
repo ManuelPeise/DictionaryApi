@@ -5,4 +5,5 @@ export interface IVocabularyFileUpload {
   sourceLanguage: TranslationEnum | null;
   translations: TranslationEnum[];
   file: number[];
+  fileName: string;
 }

@@ -1,6 +1,7 @@
 ﻿using Data.Accessor.Interfaces;
 using Data.Database.Entities.Vocabulary;
 using Shared.Enums;
+using Shared.Models.Vocabulary;
 using Shared.Models.Words;
 
 namespace Logic.Import
@@ -14,16 +15,18 @@ namespace Logic.Import
             _unitOfWork = unitOfWork;
         }
 
-        internal async Task StoreVocabularies(List<Vocabulary> vocabularies, string topic, TranslationEnum sourceLanguage, string user = "System")
+        internal async Task StoreVocabularies(List<Vocabulary> vocabularies, string category, TranslationEnum sourceLanguage, string user = "System")
         {
             var languageIdMap = await GetLanguageIdMap();
             var partOfSpeechIdMap = await GetPartOfSpeechIdMap();
 
-            var vocabularyTopicMap = await GetVocabularyTopicIdMap(topic, sourceLanguage);
+            var vocabularyCategoryMap = await GetVocabularyCategoryMap(category, sourceLanguage);
 
-            var existingTranslatedWords = vocabularyTopicMap[topic].Vocabularies.Select(v => v.Word).ToList();
+            var existingTranslatedWordEntities = await _unitOfWork.VocabularyUnitOfWork.VocabularyRepository.GetAllAsync(false, e => e.VocabulatyToCategoryEntities);
 
-            var entitiesToAdd = new List<VocabularyEntity>();
+            var existingTranslatedWords = existingTranslatedWordEntities.Select(x => x.Word).Distinct().ToList();
+
+            var databaseIsChanged = false;
 
             foreach (var vocabulary in vocabularies)
             {
@@ -31,52 +34,113 @@ namespace Logic.Import
 
                 foreach (var translation in vocabulary.Translations)
                 {
-                    if (!existingTranslatedWords.Contains(translation.Word))
+                    if (existingTranslatedWords.Contains(translation.Word))
                     {
-                        entitiesToAdd.Add(new VocabularyEntity
-                        {
-                            GroupGuid = groupGuid,
-                            Article = translation.Article,
-                            Word = translation.Word,
-                            Ipa = translation.Ipa,
-                            ExampleSentence = translation.Sentence,
-                            IsReviewRequired = true,
-                            PartOfSpeechId = partOfSpeechIdMap[translation.PartOfSpeech],
-                            LanguageId = languageIdMap[translation.Language],
-                            TopicId = vocabularyTopicMap[topic].Id
+                        var entity = existingTranslatedWordEntities.FirstOrDefault(x => x.Word == translation.Word);
 
+                        if (entity == null)
+                        {
+                            continue;
+                        }
+
+                        var categoryEntity = vocabularyCategoryMap[category];
+
+                        var isAlreadyLinked = entity.VocabulatyToCategoryEntities?
+                            .Any(c => c.CategoryId == categoryEntity.Id) ?? false;
+
+                        if (isAlreadyLinked)
+                        {
+                            continue;
+                        }
+
+                        await _unitOfWork.VocabularyUnitOfWork.VocabularyToCategoryRepository.AddAsync(new VocabularyToCategoryEntity
+                        {
+                            VocabularyId = entity.Id,
+                            CategoryId = categoryEntity.Id,
                         });
+
+                        databaseIsChanged = true;
+                    }
+                    else
+                    {
+                        await _unitOfWork.VocabularyUnitOfWork.VocabularyToCategoryRepository.AddAsync(new VocabularyToCategoryEntity
+                        {
+                            Vocabulary = new VocabularyEntity
+                            {
+                                GroupGuid = groupGuid,
+                                Word = translation.Word,
+                                Article = translation.Article,
+                                ExampleSentence = translation.Sentence,
+                                Ipa = translation.Ipa,
+                                IsReviewRequired = true,
+                                LanguageId = languageIdMap[translation.Language],
+                                PartOfSpeechId = partOfSpeechIdMap[translation.PartOfSpeech],
+                            },
+                            Category = vocabularyCategoryMap[category],
+                        });
+
+                        databaseIsChanged = true;
                     }
                 }
             }
 
-            if (entitiesToAdd.Any())
+            if (databaseIsChanged)
             {
-                await _unitOfWork.VocabularyRepository.AddRangeAsync(entitiesToAdd);
                 await _unitOfWork.SaveChangesAsync(user);
             }
         }
 
+        internal async Task UpdateVocabularies(List<VocabularyExportModel> vocabularies, string user)
+        {
+           if(!vocabularies.Any())
+            {
+                return;
+            }
+            var languageIdMap = await GetLanguageIdMap();
+            var partOfSpeechIdMap = await GetPartOfSpeechIdMap();
+            var existingEntities = await _unitOfWork.VocabularyUnitOfWork.VocabularyRepository.GetAllAsync();
+            
+            foreach (var vocabulary in vocabularies)
+            {
+                var entity = existingEntities.FirstOrDefault(e => e.Id == vocabulary.Id);
+                
+                if (entity == null)
+                {
+                    continue;
+                }
+
+                entity.Word = vocabulary.Word;
+                entity.Article = vocabulary.Article;
+                entity.ExampleSentence = vocabulary.Sentence;
+                entity.Ipa = vocabulary.Ipa;
+                entity.IsReviewRequired = true;
+                entity.LanguageId = languageIdMap[vocabulary.Language];
+                entity.PartOfSpeechId = partOfSpeechIdMap[vocabulary.PartOfSpeech];
+            }
+
+            await _unitOfWork.SaveChangesAsync(user);
+        }
+        
         private async Task<Dictionary<TranslationEnum, int>> GetLanguageIdMap()
         {
-            var entities = await _unitOfWork.LanguageRepository.GetAllAsync();
+            var entities = await _unitOfWork.VocabularyUnitOfWork.LanguageRepository.GetAllAsync();
 
             return entities.ToDictionary(e => e.TranslationType, e => e.Id);
         }
 
         private async Task<Dictionary<string, int>> GetPartOfSpeechIdMap()
         {
-            var entities = await _unitOfWork.PartOfSpeechRepository.GetAllAsync();
+            var entities = await _unitOfWork.VocabularyUnitOfWork.PartOfSpeechRepository.GetAllAsync();
             return entities.ToDictionary(e => e.Name, e => e.Id);
         }
 
-        private async Task<Dictionary<string, VocabularyTopicEntity>> GetVocabularyTopicIdMap(string topic, TranslationEnum sourceLanguage)
+        private async Task<Dictionary<string, VocabularyCategoryEntity>> GetVocabularyCategoryMap(string topic, TranslationEnum sourceLanguage)
         {
-            var entities = await _unitOfWork.VocabularyTopicRepository.GetAllAsync(false, e => e.Vocabularies);
+            var entities = await _unitOfWork.VocabularyUnitOfWork.VocabularyCategoryRepository.GetAllAsync(true, e => e.VocabulariesToCategoryEntities);
 
             if (!entities.Any(e => e.Name == topic && e.SourceLanguage == sourceLanguage))
             {
-                await _unitOfWork.VocabularyTopicRepository.AddAsync(new VocabularyTopicEntity
+                await _unitOfWork.VocabularyUnitOfWork.VocabularyCategoryRepository.AddAsync(new VocabularyCategoryEntity
                 {
                     GroupGuid = Guid.NewGuid(),
                     Name = topic,
@@ -85,7 +149,7 @@ namespace Logic.Import
 
                 await _unitOfWork.SaveChangesAsync("System");
 
-                entities = await _unitOfWork.VocabularyTopicRepository.GetAllAsync();
+                entities = await _unitOfWork.VocabularyUnitOfWork.VocabularyCategoryRepository.GetAllAsync();
             }
 
             return entities.ToDictionary(e => e.Name, e => e);
