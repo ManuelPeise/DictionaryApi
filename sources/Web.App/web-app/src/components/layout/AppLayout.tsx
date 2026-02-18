@@ -40,7 +40,7 @@ const AppLayout: React.FC<IProps> = (props) => {
                   </FormLabel>
                 </Link>
               </Grid>
-              <Grid size={8}>
+              <Grid container size={8} columnSpacing={4}>
                 <Link
                   className="nav-link"
                   to="/vocabulary-validation"
@@ -48,6 +48,15 @@ const AppLayout: React.FC<IProps> = (props) => {
                 >
                   <FormLabel className="nav-link" sx={{ color: '#FFFFFF', fontSize: '1.2rem' }}>
                     Vokabelvalidierung
+                  </FormLabel>
+                </Link>
+                <Link
+                  className="nav-link"
+                  to="/messagelog"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  <FormLabel className="nav-link" sx={{ color: '#FFFFFF', fontSize: '1.2rem' }}>
+                    Nachrichtenprotokoll
                   </FormLabel>
                 </Link>
               </Grid>

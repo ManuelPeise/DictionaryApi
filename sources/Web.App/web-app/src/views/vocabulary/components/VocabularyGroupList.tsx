@@ -1,13 +1,13 @@
 import React from 'react';
 import { Grid, List, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material';
 import Dropdown from '../../../components/input/Dropdown';
-import { TranslationEnum } from '../../../lib/enums/TranslationEnum';
 import { colors } from '../../../lib/style/colors';
 import StatefulIcon, { StatefulIcons } from '../../../components/icons/StatefulIcon';
 import SwitchWithLabel from '../../../components/input/SwitchWithLabel';
 import { IDropdownItem } from '../../../lib/interfaces/IDropdownItem';
 import { IGroupByResult } from '../../../lib/utils';
 import { IVocabularyExportModel } from '../models/IVocabularyExportModel';
+import { TranslationEnum } from '../../../lib/enums/translationEnum';
 
 interface IProps {
   categoryDropdownItems: IDropdownItem[];

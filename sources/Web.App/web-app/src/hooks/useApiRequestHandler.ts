@@ -1,7 +1,16 @@
 import React from 'react';
 import { useAuth } from './useAuth';
 
-export const useApiRequestHandler = () => {
+export type ApiRequestHandlerResult = {
+  sendGetRequest: <TModel>(url: string, params?: Record<string, string>) => Promise<TModel>;
+  sendPostRequest: <TModel>(
+    url: string,
+    body: any,
+    params?: Record<string, string>,
+  ) => Promise<TModel>;
+};
+
+export const useApiRequestHandler = (): ApiRequestHandlerResult => {
   const { getTokens } = useAuth();
 
   const addAuthHeader = React.useCallback(

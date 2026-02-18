@@ -126,7 +126,7 @@ namespace Logic.Administration
                 LogMessageType = e.LogMessageType,
                 Module = e.Module,
                 StackTrace = e.StackTrace,
-                TimeStamp = e.CreatedAt
+                TimeStamp = e.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss")
             }).ToList();
         }
     }

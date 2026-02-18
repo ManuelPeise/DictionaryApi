@@ -5,6 +5,7 @@ import LoginPage from '../../views/loginPage/LoginPage';
 import AppLayout from '../../components/layout/AppLayout';
 import HomePage from '../../views/homePage/HomePage';
 import VocabularyValidationPageContainer from '../../views/vocabulary/VocabularyValidationPage';
+import LogMessagePageContainer from '../../views/logging/LogMessagePageContainer';
 
 const AppRouter: React.FC = () => {
   const authResult = useAuth();
@@ -19,6 +20,7 @@ const AppRouter: React.FC = () => {
         <Routes>
           <Route path="/" Component={HomePage} />
           <Route path="/vocabulary-validation" Component={VocabularyValidationPageContainer} />
+          <Route path="/messagelog" Component={LogMessagePageContainer} />
         </Routes>
       </AppLayout>
     </BrowserRouter>

@@ -22,15 +22,15 @@ namespace Service.Api.Controllers.Administration
         }
 
         [UserRoleAuthentication(RequiredRole = UserRoleEnum.Admin)]
-        [HttpGet(Name = "DeleteMessage")]
-        public async Task<List<LogMessageExportModel>> DeleteMessage([FromQuery] int messageId)
+        [HttpPost(Name = "DeleteMessage")]
+        public async Task<List<LogMessageExportModel>> DeleteMessage([FromBody] int messageId)
         {
             return await _logService.DeleteLogMessage(messageId);
         }
 
         [UserRoleAuthentication(RequiredRole = UserRoleEnum.Admin)]
-        [HttpGet(Name = "DeleteMessages")]
-        public async Task<List<LogMessageExportModel>> DeleteMessages([FromQuery] List<int> messageIds)
+        [HttpPost(Name = "DeleteMessages")]
+        public async Task<List<LogMessageExportModel>> DeleteMessages([FromBody] List<int> messageIds)
         {
             return await _logService.DeleteLogMessages(messageIds);
         }

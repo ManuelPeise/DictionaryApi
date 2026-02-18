@@ -1,4 +1,4 @@
-import { TranslationEnum } from '../../../lib/enums/TranslationEnum';
+import { TranslationEnum } from '../../../lib/enums/translationEnum';
 
 export interface IVocabularyFileUpload {
   topic: string | null;

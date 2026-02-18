@@ -10,6 +10,6 @@ namespace Shared.Models.Administration
         public string? StackTrace { get; set; }
         public string Module { get; set; } = string.Empty;
         public LogMessageTypeEnum LogMessageType { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public string TimeStamp { get; set; } = string.Empty;
     }
 }

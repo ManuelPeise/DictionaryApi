@@ -5,13 +5,13 @@ import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import TextInput from '../../../components/input/TextInput';
 import Dropdown from '../../../components/input/Dropdown';
 import { IDropdownItem } from '../../../lib/interfaces/IDropdownItem';
-import { TranslationEnum } from '../../../lib/enums/TranslationEnum';
 import { PartOfSpeechEnum } from '../../../lib/enums/PartOfSpeechEnum';
 import ActionButton from '../../../components/input/ActionButton';
 import VocabularyContentPlaceholder from './VocabularyContentPlaceholder';
 import LoadingSpinner from '../../../components/shared/LoadingSpinner';
 import { IGroupByResult } from '../../../lib/utils';
 import { isEqual } from 'lodash';
+import { TranslationEnum } from '../../../lib/enums/translationEnum';
 
 interface IProps {
   isLoading: boolean;
@@ -40,8 +40,6 @@ const VocabularyDetails: React.FC<IProps> = (props) => {
         v.partOfSpeech == null
       );
     });
-
-    console.log(canSave);
     return !isModified && !canSave;
   }, [isModified, vocabularies]);
 

@@ -1,10 +1,10 @@
 import { Checkbox, Container, FormLabel, Grid, Typography } from '@mui/material';
 import React from 'react';
 import { IVocabularyFileUpload } from '../models/IVocabularyFileUpload';
-import { TranslationEnum } from '../../../lib/enums/TranslationEnum';
 import FileSelect from '../../Shared/FileSelect';
 import TextInput from '../../../components/input/TextInput';
 import ActionButton from '../../../components/input/ActionButton';
+import { TranslationEnum } from '../../../lib/enums/translationEnum';
 
 interface IProps {
   isLoading: boolean;
