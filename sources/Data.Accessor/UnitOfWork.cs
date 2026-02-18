@@ -11,6 +11,9 @@ namespace Data.Accessor
     {
         private readonly DatabaseContext _dbContext;
 
+        // vocabulary
+        private IAdministrationUnitOfWork _administrationUnitOfWork;
+        public IAdministrationUnitOfWork AdministrationUnitOfWork => _administrationUnitOfWork ?? new AdministrationUnitOfWork(_dbContext);
         // user unit of work
         private IRepositoryBase<UserEntity>? _userRepository;
         public IRepositoryBase<UserEntity> UserRepository => _userRepository ?? new RepositoryBase<UserEntity>(_dbContext);
@@ -31,10 +34,11 @@ namespace Data.Accessor
         public IRepositoryBase<ImportFileEntity> ImportFileRepository => _importFileRepository ?? new RepositoryBase<ImportFileEntity>(_dbContext);
 
        
-        public UnitOfWork(DatabaseContext dbContext, IVocabularyUnitOfWork vocabularyUnitOfWork)
+        public UnitOfWork(DatabaseContext dbContext, IVocabularyUnitOfWork vocabularyUnitOfWork, IAdministrationUnitOfWork administrationUnitOfWork)
         {
             _dbContext = dbContext;
             _vocabularyUnitOfWork = vocabularyUnitOfWork;
+            _administrationUnitOfWork = administrationUnitOfWork;
             _userRepository = new RepositoryBase<UserEntity>(_dbContext);
             _userCredentialsRepository = new RepositoryBase<UserCredentialsEntity>(_dbContext);
             _userSettingsRepository = new RepositoryBase<UserSettingsEntity>(_dbContext);

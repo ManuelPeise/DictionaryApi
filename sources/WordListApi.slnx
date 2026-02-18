@@ -7,6 +7,7 @@
     <Project Path="Service.Api/Service.Api.csproj" Id="d197e5cf-0dea-412f-bd8e-e41708193c74" />
   </Folder>
   <Folder Name="/03 Logic/">
+    <Project Path="Logic.Administration/Logic.Administration.csproj" Id="e17a01ff-a152-4982-b07f-fc51aeb8c6fe" />
     <Project Path="Logic.Import/Logic.Import.csproj" Id="e6193ab2-14f0-43cd-a21e-c403e07ce1ab" />
     <Project Path="Logic.Parsing/Logic.Parsing.csproj" Id="e2b642c8-2df2-45c4-ae8c-133b18a1f49f" />
     <Project Path="Logic.Shared/Logic.Shared.csproj" Id="c14a2818-d4c4-44c8-97fd-3cfe2637b189" />

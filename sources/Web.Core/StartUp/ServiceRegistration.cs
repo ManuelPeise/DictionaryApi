@@ -4,6 +4,7 @@ using Logic.Import.DI;
 using Logic.Parsing.DI;
 using Logic.Shared.DI;
 using Logic.UserService.DI;
+using Logic.Administration.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -116,6 +117,7 @@ namespace Web.Core.StartUp
             services.RegisterUserServices();
             services.RegisterImportServices();
             services.RegisterParsingServices();
+            services.RegisterAdministrationServices();
 
             RegisterSwagger(services);
 
