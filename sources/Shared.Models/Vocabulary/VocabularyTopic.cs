@@ -1,6 +1,6 @@
 ﻿using Shared.Enums;
 
-namespace Shared.Models.Words
+namespace Shared.Models.Vocabulary
 {
     public class VocabularyTopic
     {

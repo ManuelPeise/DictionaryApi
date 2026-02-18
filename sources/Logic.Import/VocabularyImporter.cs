@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Import;
-using Shared.Models.KaikkiJsonModels;
 using Shared.Models.Settings;
+using Shared.Models.Vocabulary;
 using Shared.Models.Words;
 using System.Text.Json;
 
@@ -28,21 +28,17 @@ namespace Logic.Import
         private readonly Logger<VocabularyImporter> _logger;
         private readonly HttpClient _httpClient;
         private readonly ApiSettings _apiSettings;
-        private readonly IFileImporter _fileImporter;
         private readonly IKaikkiDumpFileParser _kaikkiDumpFileParser;
         public VocabularyImporter(
             DatabaseContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IUnitOfWork unitOfWork,
-            IKaikkiParser kaikkiParser,
             IKaikkiDumpFileParser kaikkiDumpFileParser,
-            IFileImporter fileImporter,
             IOptions<ApiSettings> options)
             : base(dbContext, httpContextAccessor, unitOfWork)
         {
             _logger = new Logger<VocabularyImporter>(dbContext);
             _kaikkiDumpFileParser = kaikkiDumpFileParser;
-            _fileImporter = fileImporter;
             _httpClient = new HttpClient();
             _apiSettings = options.Value;
         }
@@ -51,6 +47,8 @@ namespace Logic.Import
         {
             try
             {
+                var currentUser = GetCurrentUser();
+
                 var importFileEntity = new ImportFileEntity
                 {
                     FileName = fileUploadModel.FileName,
@@ -67,7 +65,11 @@ namespace Logic.Import
                 importFileEntity.Status = FileImportStatus.Completed;
                 importFileEntity.IsImportedSuccessful = true;
 
-                await _fileImporter.ImportVocabularyFileAsync(fileUploadModel, false, true);
+                var fileEntity = CreateImportFileEntity(fileUploadModel, false, true);
+
+                await UnitOfWork.ImportFileRepository.AddAsync(fileEntity);
+
+                await UnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
 
                 await _logger.LogMessageAsync($"Vocabulary file {fileUploadModel.FileName} imported.", LogMessageTypeEnum.Info);
 
@@ -390,6 +392,24 @@ namespace Logic.Import
             }
 
             return vocabularyTranslation;
+        }
+
+        private ImportFileEntity CreateImportFileEntity(VocabularyFileUpload fileUploadModel, bool isPending, bool isCompleted)
+        {
+
+            var importFileEntity = new ImportFileEntity
+            {
+                FileName = fileUploadModel.FileName,
+                FileBytes = fileUploadModel.File,
+                Key = fileUploadModel.Topic,
+                SourceLanguage = fileUploadModel.SourceLanguage,
+                Translations = fileUploadModel.Translations,
+                Status = isPending ? FileImportStatus.Pending : isCompleted ? FileImportStatus.Completed : FileImportStatus.Failed,
+                IsImportedSuccessful = isCompleted
+            };
+
+            return importFileEntity;
+
         }
     }
 }

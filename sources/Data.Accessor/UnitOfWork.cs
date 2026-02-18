@@ -30,9 +30,7 @@ namespace Data.Accessor
         private IRepositoryBase<ImportFileEntity>? _importFileRepository;
         public IRepositoryBase<ImportFileEntity> ImportFileRepository => _importFileRepository ?? new RepositoryBase<ImportFileEntity>(_dbContext);
 
-        private IRepositoryBase<ScheduledTaskEntity>? _scheduledTaskRepository;
-        public IRepositoryBase<ScheduledTaskEntity> ScheduledTaskRepository => _scheduledTaskRepository ?? new RepositoryBase<ScheduledTaskEntity>(_dbContext);
-
+       
         public UnitOfWork(DatabaseContext dbContext, IVocabularyUnitOfWork vocabularyUnitOfWork)
         {
             _dbContext = dbContext;
@@ -41,9 +39,6 @@ namespace Data.Accessor
             _userCredentialsRepository = new RepositoryBase<UserCredentialsEntity>(_dbContext);
             _userSettingsRepository = new RepositoryBase<UserSettingsEntity>(_dbContext);
             _importFileRepository = new RepositoryBase<ImportFileEntity>(_dbContext);
-            _scheduledTaskRepository = new RepositoryBase<ScheduledTaskEntity>(_dbContext);
-           
-
         }
 
         public async Task<int> SaveChangesAsync(string userName)

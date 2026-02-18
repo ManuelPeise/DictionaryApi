@@ -25,8 +25,7 @@ namespace Data.Database
             modelBuilder.ApplyConfiguration(new UserSettingsSeed());
             modelBuilder.ApplyConfiguration(new LanguageSeed());
             modelBuilder.ApplyConfiguration(new PartOfSpeachSeed());
-            modelBuilder.ApplyConfiguration(new ScheduledTaskSeed(_apiSettings));
-
+           
             modelBuilder.Entity<VocabularyToCategoryEntity>(entity =>
             {
                 entity.HasIndex(e => new { e.VocabularyId, e.CategoryId }).IsUnique();
@@ -80,9 +79,6 @@ namespace Data.Database
 
         // files
         public DbSet<ImportFileEntity> ImportFileTable { get; set; }
-
-        // tasks
-        public DbSet<ScheduledTaskEntity> ScheduledTaskTable { get; set; }  
 
     }
 }

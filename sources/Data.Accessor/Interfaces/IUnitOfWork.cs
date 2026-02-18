@@ -10,7 +10,6 @@ namespace Data.Accessor.Interfaces
         IRepositoryBase<UserCredentialsEntity> UserCredentialsRepository { get; }
         IRepositoryBase<UserSettingsEntity> UserSettingsRepository { get; }
         IRepositoryBase<ImportFileEntity> ImportFileRepository { get; }
-        IRepositoryBase<ScheduledTaskEntity> ScheduledTaskRepository { get; }
         public IVocabularyUnitOfWork VocabularyUnitOfWork { get; }
         Task<int> SaveChangesAsync(string userName);
     }

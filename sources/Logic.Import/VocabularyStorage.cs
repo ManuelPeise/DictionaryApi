@@ -2,7 +2,6 @@
 using Data.Database.Entities.Vocabulary;
 using Shared.Enums;
 using Shared.Models.Vocabulary;
-using Shared.Models.Words;
 
 namespace Logic.Import
 {

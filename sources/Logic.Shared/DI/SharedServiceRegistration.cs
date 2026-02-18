@@ -9,7 +9,6 @@ namespace Logic.Shared.DI
         {
             services.AddScoped(typeof(ILogger<>), typeof(Logger<>));
             services.AddScoped<ILogicBase, LogicBase>();
-            services.AddScoped<IScheduledTasks, ScheduledTasks>();
         }
     }
 }

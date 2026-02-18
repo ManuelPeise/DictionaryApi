@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Logic.Parsing.DI
 {
-    public static class ParsingSericeRegistrations
+    public static class ParsingServiceRegistrations
     {
         public static void RegisterParsingServices(this IServiceCollection services)
         {

@@ -1,4 +1,6 @@
-﻿namespace Shared.Models.Words
+﻿using Shared.Models.Words;
+
+namespace Shared.Models.Vocabulary
 {
     public class Vocabulary
     {
