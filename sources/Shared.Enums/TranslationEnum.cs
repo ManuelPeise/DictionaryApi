@@ -2,8 +2,8 @@
 {
     public enum TranslationEnum
     {
-        En = 0,
-        De = 1,
-        Da = 2,
+        De = 0,
+        Da = 1,
+        En = 2,
     }
 }

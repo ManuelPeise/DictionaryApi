@@ -47,7 +47,7 @@ const AppLayout: React.FC<IProps> = (props) => {
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <FormLabel className="nav-link" sx={{ color: '#FFFFFF', fontSize: '1.2rem' }}>
-                    Vocabulary Validation
+                    Vokabelvalidierung
                   </FormLabel>
                 </Link>
               </Grid>
@@ -72,7 +72,7 @@ const AppLayout: React.FC<IProps> = (props) => {
           </Toolbar>
         </AppBar>
       </Grid>
-      <Grid size={12} padding={'1rem'} style={{ marginTop: '20px' }}>
+      <Grid size={12} padding={'.5rem'}>
         {children}
       </Grid>
     </Grid>

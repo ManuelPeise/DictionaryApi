@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Data.Database.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260212184404_InitializeDatabase")]
+    [Migration("20260215140353_InitializeDatabase")]
     partial class InitializeDatabase
     {
         /// <inheritdoc />
@@ -393,7 +393,7 @@ namespace Data.Database.Migrations
                             CreatedBy = "System",
                             Name = "German",
                             ResourceKey = "LanguageGerman",
-                            TranslationType = 1,
+                            TranslationType = 0,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         },
@@ -404,7 +404,7 @@ namespace Data.Database.Migrations
                             CreatedBy = "System",
                             Name = "English",
                             ResourceKey = "LanguageEnglish",
-                            TranslationType = 0,
+                            TranslationType = 2,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         },
@@ -415,7 +415,7 @@ namespace Data.Database.Migrations
                             CreatedBy = "System",
                             Name = "Danish",
                             ResourceKey = "LanguageDanish",
-                            TranslationType = 2,
+                            TranslationType = 1,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
                         });

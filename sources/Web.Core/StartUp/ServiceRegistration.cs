@@ -1,6 +1,7 @@
 ﻿using Data.Accessor.DI;
 using Data.Database;
 using Logic.Import.DI;
+using Logic.Parsing.DI;
 using Logic.Shared.DI;
 using Logic.UserService.DI;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -40,7 +41,7 @@ namespace Web.Core.StartUp
                 options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
                     RateLimitPartition.GetFixedWindowLimiter("GlobalLimiter", _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 100,
+                        PermitLimit = 100000000,
                         Window = TimeSpan.FromMinutes(1),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 0
@@ -114,6 +115,7 @@ namespace Web.Core.StartUp
             services.RegisterDataAccessorServices();
             services.RegisterUserServices();
             services.RegisterImportServices();
+            services.RegisterParsingServices();
 
             RegisterSwagger(services);
 

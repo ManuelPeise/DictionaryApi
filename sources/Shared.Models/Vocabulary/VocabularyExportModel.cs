@@ -6,6 +6,8 @@ namespace Shared.Models.Vocabulary
     {
         public int Id { get; set; }
         public Guid VocabularyGroupGuid { get; set; }
+        public int VocabularyCategoryId { get; set; }
+        public string VocabularyCategoryName { get; set; } = string.Empty;
         public string Word { get; set; } = string.Empty;
         public string? Article { get; set; }
         public string PartOfSpeech { get; set; } = string.Empty;
@@ -13,7 +15,6 @@ namespace Shared.Models.Vocabulary
         public string? Ipa { get; set; }
         public TranslationEnum Language { get; set; }
         public bool IsValidated { get; set; }
-        public string? LastUpdateBy { get; set; }
-        public string? LastUpdateAt { get; set; }
+        public string? LastUpdatedAtBy { get; set; }
     }
 }

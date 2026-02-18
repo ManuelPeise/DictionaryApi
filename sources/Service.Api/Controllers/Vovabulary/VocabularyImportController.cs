@@ -35,9 +35,9 @@ namespace Service.Api.Controllers.Vovabulary
 
         [ApiAuthentication(RequiredRole = UserRoleEnum.Admin)]
         [HttpPost(Name = "UpdateVocabularies")]
-        public async Task UpdateVocabularies([FromBody] List<VocabularyExportModel> vocabularies)
+        public async Task<VocabularyUpdateResponse?> UpdateVocabularies([FromBody] List<VocabularyExportModel> vocabularies)
         {
-            await _vocabularyValidation.UpdateValidatedVocabularies(vocabularies);
+            return await _vocabularyValidation.UpdateValidatedVocabularies(vocabularies);
         }
 
         [UserRoleAuthentication(RequiredRole = UserRoleEnum.MaintenanceUser)]

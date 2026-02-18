@@ -1,16 +1,12 @@
-import React from 'react';
-
-export type StatelessApiProps<TRequestModel> = {
+export type StatelessApiProps = {
   requestUrl: string;
-  method: 'GET' | 'POST';
-  body?: TRequestModel;
   params?: Record<string, string>;
   token?: string;
 };
 
 export type StatelessApiModel = {
-  sendGetRequest: <TResponse, TRequest>(props: StatelessApiProps<TRequest>) => Promise<TResponse>;
-  sendPostRequest: <TResponse, TRequest>(props: StatelessApiProps<TRequest>) => Promise<TResponse>;
+  sendGetRequest: <TResponse>(props: StatelessApiProps) => Promise<TResponse>;
+  sendPostRequest: <TResponse>(props: StatelessApiProps, body?: any) => Promise<TResponse>;
 };
 
 class StatelessApi {
@@ -31,10 +27,7 @@ class StatelessApi {
     }
     return headers;
   };
-
-  private sendGetRequest = async <TResponse, TRequest>(
-    props: StatelessApiProps<TRequest>,
-  ): Promise<TResponse> => {
+  private sendGetRequest = async <TResponse>(props: StatelessApiProps): Promise<TResponse> => {
     try {
       const response = await fetch(this.buildRequestUrl(props.requestUrl, props.params), {
         method: 'GET',
@@ -54,15 +47,16 @@ class StatelessApi {
     }
   };
 
-  private sendPostRequest = async <TResponse, TRequest>(
-    props: StatelessApiProps<TRequest>,
+  private sendPostRequest = async <TResponse>(
+    props: StatelessApiProps,
+    body?: any,
   ): Promise<TResponse> => {
     try {
       const response = await fetch(this.buildRequestUrl(props.requestUrl, props.params), {
         method: 'POST',
         mode: 'cors',
         headers: this.addAuthHeader({ 'Content-Type': 'application/json' }, props.token),
-        body: props.body ? JSON.stringify(props.body) : null,
+        body: body ? JSON.stringify(body) : null,
       });
 
       if (response.ok) {
@@ -77,10 +71,10 @@ class StatelessApi {
     }
   };
 
-  public static createStatelessApi<TResponse, TRequest>(): StatelessApiModel {
+  public createStatelessApi(): StatelessApiModel {
     return {
-      sendGetRequest: this.prototype.sendGetRequest,
-      sendPostRequest: this.prototype.sendPostRequest,
+      sendGetRequest: this.sendGetRequest,
+      sendPostRequest: this.sendPostRequest,
     };
   }
 }

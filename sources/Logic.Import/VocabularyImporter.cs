@@ -2,6 +2,8 @@
 using Data.Database;
 using Data.Database.Entities.Files;
 using Logic.Import.Interfaces;
+using Logic.Parsing.Interfaces;
+using Logic.Parsing.Models;
 using Logic.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -21,24 +23,25 @@ namespace Logic.Import
         private const string LanguageColumn = "Language";
         private const string PartOfSpeechColumn = "PartOfSpeech";
         private const string SentenceColumn = "Sentence";
+        private const string IpaColumn = "Ipa";
 
         private readonly Logger<VocabularyImporter> _logger;
         private readonly HttpClient _httpClient;
         private readonly ApiSettings _apiSettings;
-        private readonly IKaikkiParser _kaikkiParser;
         private readonly IFileImporter _fileImporter;
-
+        private readonly IKaikkiDumpFileParser _kaikkiDumpFileParser;
         public VocabularyImporter(
             DatabaseContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IUnitOfWork unitOfWork,
             IKaikkiParser kaikkiParser,
+            IKaikkiDumpFileParser kaikkiDumpFileParser,
             IFileImporter fileImporter,
             IOptions<ApiSettings> options)
             : base(dbContext, httpContextAccessor, unitOfWork)
         {
             _logger = new Logger<VocabularyImporter>(dbContext);
-            _kaikkiParser = kaikkiParser;
+            _kaikkiDumpFileParser = kaikkiDumpFileParser;
             _fileImporter = fileImporter;
             _httpClient = new HttpClient();
             _apiSettings = options.Value;
@@ -114,7 +117,8 @@ namespace Logic.Import
 
         private async Task ImportPendingFiles(List<ImportFileEntity> pendingVocabularyFiles)
         {
-            var kaikkiWordExtractions = await GetKaikkiExtractions(GetKaikkiExtractionTypes());
+            var kaikkiWordExtractions = await _kaikkiDumpFileParser.GetKaikkiWordDictionary(
+                new List<TranslationEnum> { TranslationEnum.En, TranslationEnum.Da, TranslationEnum.De });
 
             foreach (var file in pendingVocabularyFiles)
             {
@@ -255,62 +259,29 @@ namespace Logic.Import
             }
         }
 
-        private List<KaikkiExtractionTypeEnum> GetKaikkiExtractionTypes()
-        {
-            var extractionDataTypes = new List<KaikkiExtractionTypeEnum>
-            {
-                KaikkiExtractionTypeEnum.EnglishExtractions,
-                KaikkiExtractionTypeEnum.DanishExtractions,
-                KaikkiExtractionTypeEnum.GermanExtractions
-            };
-
-            return extractionDataTypes.Distinct().ToList();
-        }
-
-        private async Task<Dictionary<TranslationEnum, Dictionary<string, KaikkiJsonDataExtract>>> GetKaikkiExtractions(List<KaikkiExtractionTypeEnum> extractionTypes)
-        {
-            var extractionDataDictionary = new Dictionary<TranslationEnum, Dictionary<string, KaikkiJsonDataExtract>>();
-
-            foreach (var extractionType in extractionTypes)
-            {
-                if (extractionType == KaikkiExtractionTypeEnum.EnglishExtractions && !extractionDataDictionary.TryGetValue(TranslationEnum.En, out _))
-                {
-                    var englishData = await _kaikkiParser.ParseKaikkiJsonExtractionFile(KaikkiExtractionTypeEnum.EnglishExtractions);
-                    extractionDataDictionary.Add(TranslationEnum.En, englishData);
-                }
-                else if (extractionType == KaikkiExtractionTypeEnum.GermanExtractions && !extractionDataDictionary.TryGetValue(TranslationEnum.De, out _))
-                {
-                    var germanData = await _kaikkiParser.ParseKaikkiJsonExtractionFile(KaikkiExtractionTypeEnum.GermanExtractions);
-                    extractionDataDictionary.Add(TranslationEnum.De, germanData);
-                }
-                else if (extractionType == KaikkiExtractionTypeEnum.DanishExtractions && !extractionDataDictionary.TryGetValue(TranslationEnum.Da, out _))
-                {
-                    var danishData = await _kaikkiParser.ParseKaikkiJsonExtractionFile(KaikkiExtractionTypeEnum.DanishExtractions);
-                    extractionDataDictionary.Add(TranslationEnum.Da, danishData);
-                }
-            }
-
-            return extractionDataDictionary;
-        }
-
         private async Task<TranslationModel> GetTranslations(
             TranslationModel translationModel,
             TranslationEnum sourceLanguage,
             TranslationEnum targetLanguage,
-            Dictionary<string, KaikkiJsonDataExtract> extractionData)
+            Dictionary<KaikkiKey, List<KaikkiModel>> kaikkiWordDictionary)
         {
             var dictionary = new Dictionary<string, string>
             {
                 { WordColumn, "" },
                 { ArticleColumn, "" },
                 { SentenceColumn, "" },
+                { IpaColumn, ""  }
             };
 
             foreach (var key in dictionary.Keys)
             {
                 if (key == WordColumn && !string.IsNullOrEmpty(translationModel.Word))
                 {
-                    dictionary[key] = await GetTranslation(translationModel.Word, sourceLanguage, targetLanguage);
+                    var result = kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = translationModel.Word.ToLower(), Language = sourceLanguage }, out var entries);
+
+                    dictionary[key] = result && entries != null && entries.Any() ?
+                        entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Word)).FirstOrDefault()?.Word ?? string.Empty :
+                        await GetTranslation(translationModel.Word, sourceLanguage, targetLanguage);
                 }
                 else if (key == ArticleColumn && !string.IsNullOrEmpty(translationModel.Article))
                 {
@@ -320,7 +291,14 @@ namespace Logic.Import
                 {
                     dictionary[key] = await GetTranslation(translationModel.Sentence, sourceLanguage, targetLanguage);
                 }
+                else if (key == IpaColumn)
+                {
+                    var ipaResult = kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = translationModel.Word.ToLower(), Language = sourceLanguage }, out var entries);
+                    dictionary[key] = ipaResult && entries != null && entries.Any() ?
+                        entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Word)).FirstOrDefault()?.Sounds.FirstOrDefault(s => s.Ipa != null)?.Ipa ?? string.Empty :
+                        string.Empty;
 
+                }
             }
 
             return new TranslationModel
@@ -330,7 +308,7 @@ namespace Logic.Import
                 Sentence = dictionary[SentenceColumn],
                 PartOfSpeech = translationModel.PartOfSpeech,
                 Language = targetLanguage,
-                Ipa = extractionData.TryGetValue(dictionary[WordColumn] ?? string.Empty, out var dataExtract) ? dataExtract.Ipa : string.Empty
+                Ipa = dictionary[IpaColumn],
             };
         }
 
@@ -375,13 +353,15 @@ namespace Logic.Import
         private async Task<Vocabulary> GetVocabularyTranslation(
             VocabularyImportWordModel model,
             ImportFileEntity file,
-            Dictionary<TranslationEnum, Dictionary<string, KaikkiJsonDataExtract>> kaikkiWordExtractions)
+            Dictionary<KaikkiKey, List<KaikkiModel>> kaikkiWordDictionary)
         {
             var vocabularyTranslation = new Vocabulary
             {
                 Topic = new VocabularyTopic { Name = file.Key, Language = file.SourceLanguage },
                 Translations = new List<TranslationModel>()
             };
+
+            kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = model.Word.ToLower(), Language = file.SourceLanguage }, out var entries);
 
             vocabularyTranslation.Translations.Add(new TranslationModel
             {
@@ -390,19 +370,11 @@ namespace Logic.Import
                 Sentence = model.ExampleSentence,
                 PartOfSpeech = model.PartOfSpeech,
                 Language = file.SourceLanguage,
-                Ipa = kaikkiWordExtractions.TryGetValue(file.SourceLanguage, out var extraction) &&
-                      extraction.TryGetValue(model.Word, out var dataExtract) ?
-                      dataExtract.Ipa :
-                      string.Empty
+                Ipa = entries?.FirstOrDefault(e => e.Word.Equals(model.Word, StringComparison.InvariantCultureIgnoreCase))?.Sounds.FirstOrDefault(s => s.Ipa != null)?.Ipa ?? string.Empty
             });
 
             foreach (var translationType in file.Translations)
             {
-                if (!kaikkiWordExtractions.TryGetValue(translationType, out var extractionDictionary))
-                {
-                    continue;
-                }
-
                 var translationWordModel = new TranslationModel
                 {
                     Word = model.Word,
@@ -412,7 +384,7 @@ namespace Logic.Import
                     Language = translationType
                 };
 
-                var translationModel = await GetTranslations(translationWordModel, model.Language, translationType, extractionDictionary);
+                var translationModel = await GetTranslations(translationWordModel, model.Language, translationType, kaikkiWordDictionary);
 
                 vocabularyTranslation.Translations.Add(translationModel);
             }

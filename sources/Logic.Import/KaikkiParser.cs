@@ -231,12 +231,12 @@ namespace Logic.Import
 
             return new KaikkiJsonDataExtract
             {
-                Word = model.Word ?? string.Empty,
+                Word = model.Word?.ToLower() ?? string.Empty,
                 PartOfSpeech = GetNormalizedPartOfSpeech(model?.PartOfSpeech ?? string.Empty),
                 Ipa = model?.Sounds?.Where(s => !string.IsNullOrWhiteSpace(s.Ipa))
                     .Select(s => s.Ipa)
                     .Distinct()
-                    .FirstOrDefault() ?? string.Empty,
+                    .FirstOrDefault()?.Normalize() ?? string.Empty,
                 LanguageCode = model?.LanguageCode ?? string.Empty,
                 Synonyms = model?.Senses?.Where(s => s?.Synonyms != null)
                     .SelectMany(s => s.Synonyms!)

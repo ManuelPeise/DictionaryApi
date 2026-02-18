@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Shared.Enums;
 using Shared.Models.Vocabulary;
+using System.Globalization;
 
 namespace Logic.Import
 {
@@ -24,7 +25,8 @@ namespace Logic.Import
         {
             var model = new VocabularyValidationPageModel
             {
-                Categories = new List<VocabularyCategoryExportModel>()
+                Categories = new List<VocabularyCategoryExportModel>(),
+                CategoryDropDownItems = new List<VocabularyCategoryDropdownModel>()
             };
 
             try
@@ -36,16 +38,14 @@ namespace Logic.Import
                     return model;
                 }
 
-                var categories = new List<VocabularyCategoryExportModel>();
-
-                foreach (var ce in categoryEntities)
+                foreach (var ce in categoryEntities.Where(e => e.VocabulariesToCategoryEntities.Any()))
                 {
                     foreach (var vc in ce.VocabulariesToCategoryEntities)
                     {
                         await UnitOfWork.VocabularyUnitOfWork.VocabularyRepository.FirstOrDefaultByIdAsync(vc.VocabularyId);
                     }
 
-                    categories.Add(new VocabularyCategoryExportModel
+                    model.Categories.Add(new VocabularyCategoryExportModel
                     {
                         Id = ce.Id,
                         Name = ce.Name,
@@ -53,7 +53,11 @@ namespace Logic.Import
                     });
                 }
 
-                model.Categories = categories;
+                model.CategoryDropDownItems = categoryEntities.Select(e => new VocabularyCategoryDropdownModel
+                {
+                    Id = e.Id,
+                    Label = e.Name
+                }).ToList();
 
                 return model;
             }
@@ -67,7 +71,7 @@ namespace Logic.Import
             }
         }
 
-        public async Task UpdateValidatedVocabularies(List<VocabularyExportModel> vocabularies)
+        public async Task<VocabularyUpdateResponse?> UpdateValidatedVocabularies(List<VocabularyExportModel> vocabularies)
         {
             try
             {
@@ -75,28 +79,33 @@ namespace Logic.Import
 
                 var vocabularyStore = new VocabularyStorage(UnitOfWork);
 
-                await vocabularyStore.UpdateVocabularies(vocabularies, currentUser.EmailAddress);
+                var updatedVocabularies = await vocabularyStore.UpdateVocabularies(vocabularies, currentUser.EmailAddress);
+
+                return new VocabularyUpdateResponse
+                {
+                    GroupGuid = updatedVocabularies.FirstOrDefault()?.VocabularyGroupGuid.ToString() ?? string.Empty,
+                    Vocabularies = updatedVocabularies
+                };
             }
             catch (Exception exception)
             {
                 await _logger.LogMessageAsync(
                     "Could not update validated vocabularies",
                     LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+
+                return null;
             }
         }
 
-        private async Task<List<VocabularyGroupExportModel>> GetVocabulariesGroupsToReview(VocabularyCategoryEntity te)
+        private async Task<List<VocabularyGroupExportModel>> GetVocabulariesGroupsToReview(VocabularyCategoryEntity vocabularyCategory)
         {
-            var vocabularyToCategoryEntities = te.VocabulariesToCategoryEntities.Where(e => e.Vocabulary.IsReviewRequired).ToList();
-
-            foreach (var vc in vocabularyToCategoryEntities)
+            foreach (var vc in vocabularyCategory.VocabulariesToCategoryEntities)
             {
                 await UnitOfWork.VocabularyUnitOfWork.LanguageRepository.FirstOrDefaultByIdAsync(vc.Vocabulary.LanguageId);
                 await UnitOfWork.VocabularyUnitOfWork.PartOfSpeechRepository.FirstOrDefaultByIdAsync(vc.Vocabulary.PartOfSpeechId);
             }
 
-            return (from ve in vocabularyToCategoryEntities.Select(e => e.Vocabulary)
-                    where ve.IsReviewRequired
+            return (from ve in vocabularyCategory.VocabulariesToCategoryEntities.Select(e => e.Vocabulary)
                     group ve by ve.GroupGuid into vocabularyEntityGroup
                     select new VocabularyGroupExportModel
                     {
@@ -113,8 +122,7 @@ namespace Logic.Import
                                             Ipa = v.Ipa,
                                             Language = v.Language.TranslationType,
                                             IsValidated = !v.IsReviewRequired,
-                                            LastUpdateBy = v.UpdatedBy,
-                                            LastUpdateAt = v.UpdatedAt.ToString("dd.MM.yyyy HH:MM:ss")
+                                            LastUpdatedAtBy= $"{v.UpdatedBy} / {v.UpdatedAt.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture)}",
                                         }).ToList()
                     }).ToList();
         }

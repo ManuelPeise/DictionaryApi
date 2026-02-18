@@ -1,26 +1,24 @@
 import { Checkbox, Container, FormLabel, Grid, Typography } from '@mui/material';
 import React from 'react';
-import FileSelect from '../Shared/FileSelect';
-import { IVocabularyFileUpload } from './models/IVocabularyFileUpload';
-import TextInput from '../../components/input/TextInput';
-import { TranslationEnum } from '../../lib/enums/translationEnum';
-import ActionButton from '../../components/input/ActionButton';
-import { useApi } from '../../hooks/useApi';
+import { IVocabularyFileUpload } from '../models/IVocabularyFileUpload';
+import { TranslationEnum } from '../../../lib/enums/TranslationEnum';
+import FileSelect from '../../Shared/FileSelect';
+import TextInput from '../../../components/input/TextInput';
+import ActionButton from '../../../components/input/ActionButton';
 
-interface IProps {}
+interface IProps {
+  isLoading: boolean;
+  uploadFile: (model: IVocabularyFileUpload) => Promise<void>;
+}
 
-const VocabularyImportDialogContent: React.FC<IProps> = () => {
+const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
+  const { isLoading, uploadFile } = props;
   const [importModel, setImportModel] = React.useState<IVocabularyFileUpload>({
     topic: null,
     sourceLanguage: TranslationEnum.De,
     translations: [],
     file: [],
     fileName: '',
-  });
-
-  const api = useApi.useStatefullApi<void>({
-    requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
-    method: 'POST',
   });
 
   const languageCheckboxItems = React.useMemo(() => {
@@ -69,7 +67,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
       const valueAsNumber = Number(event.target.value);
       setImportModel((prev) => ({
         ...prev,
-        baseLanguage: valueAsNumber as TranslationEnum,
+        sourceLanguage: valueAsNumber as TranslationEnum,
       }));
     },
     [],
@@ -77,6 +75,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
 
   const handleTranslationChanged = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement, Element>, checked: boolean) => {
+      console.log(checked);
       if (isNaN(Number(event.target.value))) {
         return;
       }
@@ -94,36 +93,32 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
   );
 
   const handleImportFile = React.useCallback(async () => {
-    await api
-      .sendPostRequest(importModel, {
-        requestUrl: `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
-        method: 'POST',
-      })
-      .then(() => {
-        setImportModel({
-          topic: null,
-          sourceLanguage: TranslationEnum.De,
-          translations: [],
-          file: [],
-          fileName: '',
-        });
+    await uploadFile(importModel).then(() => {
+      setImportModel({
+        topic: null,
+        sourceLanguage: TranslationEnum.De,
+        translations: [],
+        file: [],
+        fileName: '',
       });
-  }, [importModel, api]);
+    });
+  }, [importModel, uploadFile]);
 
   const importDisabled = React.useMemo(() => {
     return (
       importModel.file == null ||
       importModel.topic == null ||
       importModel.sourceLanguage == null ||
-      importModel.translations.length === 0
+      importModel.translations.length === 0 ||
+      isLoading
     );
-  }, [importModel]);
+  }, [importModel, isLoading]);
 
   return (
     <Container>
       <Grid container spacing={2} gap={5}>
         <Grid size={12} mt="1.5rem" display="flex" flexDirection="row" alignItems="center">
-          <Typography variant="h4">Vocabulary Import</Typography>
+          <Typography variant="h4">Vokabeln importieren</Typography>
         </Grid>
         <Grid
           container
@@ -134,7 +129,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
           alignItems="center"
         >
           <Grid size={6}>
-            <Typography variant="h6">Select CSV file to import</Typography>
+            <Typography variant="h6">Wählen Sie eine CSV-Datei aus</Typography>
           </Grid>
           <Grid
             size={6}
@@ -150,9 +145,9 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
           <TextInput
             value={importModel.topic ?? ''}
             onChange={handleTopicChanged}
-            label="Topic"
+            label="Kategorie"
             variant="standard"
-            placeholder="Enter a topic..."
+            placeholder="Geben Sie eine Kategorie ein..."
           />
         </Grid>
         <Grid size={12} display="flex" flexDirection="row" alignItems="center">
@@ -163,7 +158,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
             justifyContent="flex-start"
             alignItems="center"
           >
-            <Typography variant="h6">Select source language</Typography>
+            <Typography variant="h6">Quellsprache auswählen</Typography>
           </Grid>
           <Grid
             size={6}
@@ -194,7 +189,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
             justifyContent="flex-start"
             alignItems="center"
           >
-            <Typography variant="h6">Select target languages</Typography>
+            <Typography variant="h6">Zielsprachen auswählen</Typography>
           </Grid>
           <Grid
             size={6}
@@ -219,7 +214,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = () => {
           </Grid>
         </Grid>
         <Grid size={12} mt="1.5rem" display="flex" flexDirection="row" justifyContent="flex-end">
-          <ActionButton disabled={importDisabled} label="Import" onClick={handleImportFile} />
+          <ActionButton disabled={importDisabled} label="Importieren" onClick={handleImportFile} />
         </Grid>
       </Grid>
     </Container>

@@ -5,6 +5,6 @@ namespace Logic.Import.Interfaces
     public interface IVocabularyValidation
     {
         Task<VocabularyValidationPageModel> GetVocabularyValidationPageModel();
-        Task UpdateValidatedVocabularies(List<VocabularyExportModel> vocabularies);
+        Task<VocabularyUpdateResponse?> UpdateValidatedVocabularies(List<VocabularyExportModel> vocabularies);
     }
 }

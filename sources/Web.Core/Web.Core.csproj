@@ -40,6 +40,7 @@
     <ProjectReference Include="..\Data.Accessor\Data.Accessor.csproj" />
     <ProjectReference Include="..\Data.Database\Data.Database.csproj" />
     <ProjectReference Include="..\Logic.Import\Logic.Import.csproj" />
+    <ProjectReference Include="..\Logic.Parsing\Logic.Parsing.csproj" />
     <ProjectReference Include="..\Logic.Shared\Logic.Shared.csproj" />
     <ProjectReference Include="..\Logic.UserService\Logic.UserService.csproj" />
     <ProjectReference Include="..\Service.Api\Service.Api.csproj" />

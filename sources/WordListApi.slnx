@@ -8,6 +8,7 @@
   </Folder>
   <Folder Name="/03 Logic/">
     <Project Path="Logic.Import/Logic.Import.csproj" Id="e6193ab2-14f0-43cd-a21e-c403e07ce1ab" />
+    <Project Path="Logic.Parsing/Logic.Parsing.csproj" Id="e2b642c8-2df2-45c4-ae8c-133b18a1f49f" />
     <Project Path="Logic.Shared/Logic.Shared.csproj" Id="c14a2818-d4c4-44c8-97fd-3cfe2637b189" />
     <Project Path="Logic.UserService/Logic.UserService.csproj" Id="b0b7db4c-97c0-4487-a8bc-eb09e25383c1" />
   </Folder>

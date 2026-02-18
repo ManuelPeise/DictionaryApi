@@ -90,12 +90,13 @@ namespace Logic.Import
             }
         }
 
-        internal async Task UpdateVocabularies(List<VocabularyExportModel> vocabularies, string user)
+        internal async Task<List<VocabularyExportModel>> UpdateVocabularies(List<VocabularyExportModel> vocabularies, string user)
         {
            if(!vocabularies.Any())
             {
-                return;
+                return new List<VocabularyExportModel>();
             }
+
             var languageIdMap = await GetLanguageIdMap();
             var partOfSpeechIdMap = await GetPartOfSpeechIdMap();
             var existingEntities = await _unitOfWork.VocabularyUnitOfWork.VocabularyRepository.GetAllAsync();
@@ -113,12 +114,27 @@ namespace Logic.Import
                 entity.Article = vocabulary.Article;
                 entity.ExampleSentence = vocabulary.Sentence;
                 entity.Ipa = vocabulary.Ipa;
-                entity.IsReviewRequired = true;
+                entity.IsReviewRequired = !vocabulary.IsValidated;
                 entity.LanguageId = languageIdMap[vocabulary.Language];
                 entity.PartOfSpeechId = partOfSpeechIdMap[vocabulary.PartOfSpeech];
             }
 
             await _unitOfWork.SaveChangesAsync(user);
+
+            return existingEntities
+                .Where(e => vocabularies.Any(v => v.Id == e.Id)).Select(e => new VocabularyExportModel
+            {
+                Id = e.Id,
+                VocabularyGroupGuid = e.GroupGuid,
+                Word = e.Word,
+                Article = e.Article,
+                PartOfSpeech = partOfSpeechIdMap.FirstOrDefault(x => x.Value == e.PartOfSpeechId).Key,
+                Sentence = e.ExampleSentence,
+                Ipa = e.Ipa,
+                Language = languageIdMap.FirstOrDefault(x => x.Value == e.LanguageId).Key,
+                IsValidated = !e.IsReviewRequired,
+                LastUpdatedAtBy = user,
+            }).ToList();
         }
         
         private async Task<Dictionary<TranslationEnum, int>> GetLanguageIdMap()

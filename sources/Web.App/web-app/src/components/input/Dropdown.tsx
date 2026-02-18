@@ -1,41 +1,44 @@
-import { Select } from '@mui/material';
+import { MenuItem, Select } from '@mui/material';
 import { IDropdownItem } from '../../lib/interfaces/IDropdownItem';
 import React from 'react';
 
 interface IProps {
-  value: number;
+  value: number | null;
   placeholder?: string;
   items: IDropdownItem[];
   minwidth?: string;
   fullwidth?: boolean;
+  disabled?: boolean;
   onChange: (value: number) => void;
 }
 
 const Dropdown: React.FC<IProps> = (props) => {
-  const { value, items, placeholder, minwidth, fullwidth, onChange } = props;
+  const { value, items, placeholder, disabled, fullwidth, onChange } = props;
 
   const options = React.useMemo(() => {
-    const options = items.map((item) => (
-      <option key={item.id} value={item.id}>
-        {item.label}
-      </option>
-    ));
+    const options =
+      items?.map((item) => (
+        <MenuItem key={item.id} value={item.id}>
+          {item.label}
+        </MenuItem>
+      )) ?? [];
 
     return [
-      <option value={0} disabled hidden>
+      <MenuItem value={0} selected={value === 0} key={0} disabled>
         {placeholder}
-      </option>,
+      </MenuItem>,
       ...options,
     ];
-  }, [items, placeholder]);
+  }, [items, placeholder, value]);
 
   return (
     <Select
       size="medium"
       fullWidth={fullwidth}
-      sx={{ minWidth: minwidth ?? '300px' }}
+      sx={{ minWidth: '100%' }}
       value={value}
       variant="standard"
+      disabled={disabled}
       onChange={(e) => onChange(Number(e.target.value))}
     >
       {options}

@@ -13,7 +13,7 @@ export type StatefullApiResult<TResponseModel> = {
   error: Error | null;
   isLoading: boolean;
   sendGetRequest: (options?: StatefulApiProps) => Promise<void>;
-  sendPostRequest: (model: any, options: StatefulApiProps) => Promise<void>;
+  sendPostRequest: <TModel>(model: any, options: StatefulApiProps) => Promise<TModel>;
   rebindData: (options?: StatefulApiProps) => Promise<void>;
 };
 
@@ -85,7 +85,7 @@ const useStatefullApi = <TResponseModel>(
   );
 
   const sendPostRequest = React.useCallback(
-    async (model: any, options: StatefulApiProps): Promise<void> => {
+    async <TModel>(model: TModel, options: StatefulApiProps): Promise<TModel | null> => {
       try {
         setIsLoading(true);
 
@@ -100,7 +100,8 @@ const useStatefullApi = <TResponseModel>(
 
         if (response.ok) {
           const responseData = (await response.json()) as TResponseModel;
-          setData(responseData);
+
+          return responseData as unknown as TModel;
         } else {
           throw new Error(`Request failed with status ${response.status}`);
         }
@@ -109,6 +110,8 @@ const useStatefullApi = <TResponseModel>(
       } finally {
         setIsLoading(false);
       }
+
+      return null;
     },
     [addAuthHeader],
   );
@@ -145,6 +148,6 @@ const useStatefullApi = <TResponseModel>(
 };
 
 export const useApi = {
-  createStatelessApi: StatelessApi.createStatelessApi,
+  createStatelessApi: new StatelessApi().createStatelessApi,
   useStatefullApi,
 };

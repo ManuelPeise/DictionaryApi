@@ -1,10 +1,11 @@
 import React from 'react';
-import { FormLabel, Grid, LinearProgress } from '@mui/material';
+import { FormLabel, Grid } from '@mui/material';
 import TextInput from '../../components/input/TextInput';
 import { IAuthenticationRequest } from '../../lib/interfaces/IAuthenticationRequest';
 import Card from '../Shared/Card';
 import ActionButton from '../../components/input/ActionButton';
 import { useAuth } from '../../hooks/useAuth';
+import LoadingSpinner from '../../components/shared/LoadingSpinner';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -32,17 +33,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <Grid justifyContent="center" alignItems="center" style={{ display: 'flex', height: '100vh' }}>
-      {isLoading && (
-        <LinearProgress
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            backgroundColor: '#e29521',
-          }}
-        />
-      )}
+      {isLoading && <LoadingSpinner message="Bitte warten, Sie werden eingeloggt..." />}
       <Card
         padding="50px"
         margin="50px auto"

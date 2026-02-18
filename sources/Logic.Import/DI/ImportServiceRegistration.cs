@@ -11,6 +11,7 @@ namespace Logic.Import.DI
             services.AddScoped<IFileImporter, FileImporter>();
             services.AddScoped<IVocabularyImporter, VocabularyImporter>();
             services.AddScoped<IVocabularyValidation, VocabularyValidation>();
+            services.AddScoped<IVocabularyValidationModule, VocabularyValidationModule>();
         }
     }
 }
