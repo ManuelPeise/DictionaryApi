@@ -5,8 +5,6 @@ using Logic.UserService.Interfaces;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Authentication;
-using Shared.Models.Settings;
-using Shared.Models.User;
 
 namespace Logic.UserService
 {
@@ -119,111 +117,10 @@ namespace Logic.UserService
             }
         }
 
-        public async Task<UserModel?> GetCurrentUserData()
-        {
-            try
-            {
-                var currentUser = _logicBase.GetCurrentUser(true);
-
-                return currentUser;
-            }
-            catch (Exception exception)
-            {
-                await _logger.LogMessageAsync("Could not load current user data.",
-                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
-
-                return null;
-            }
-        }
-
-        public async Task UpdateProfile(UserProfileUpdateRequest updatedUser)
-        {
-            try
-            {
-                var currentUser = _logicBase.GetCurrentUser();
-                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.EmailAddress == updatedUser.EmailAddress, false);
-
-                if (userEntity == null || userEntity.UpdatedAt > updatedUser.UpdatedAt)
-                {
-                    return;
-                }
-
-                userEntity.FirstName = updatedUser.FirstName;
-                userEntity.LastName = updatedUser.LastName;
-                userEntity.EmailAddress = updatedUser.EmailAddress;
-                userEntity.DateOfBirth = updatedUser.DateOfBirth;
-                userEntity.ProfileImage = updatedUser.ProfileImage;
-
-                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
-
-                return;
-            }
-            catch (Exception exception)
-            {
-                await _logger.LogMessageAsync("Could not update current user data.",
-                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
-            }
-
-            return;
-        }
-
-        public async Task UpdatePassword(ChangePasswordRequest request)
-        {
-            try
-            {
-                var currentUser = _logicBase.GetCurrentUser();
-
-                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.IdExternal == request.IdExternal, false, x => x.UserCredentials);
-
-                if (userEntity == null || userEntity.UserCredentials == null || !PasswordHasher.VerifyPassword(request.CurrentPassword, userEntity.UserCredentials.PasswordHash))
-                {
-                    return;
-                }
-
-                if (request.NewPassword != request.PasswordReplication)
-                {
-                    return;
-                }
-
-                userEntity.UserCredentials.PasswordHash = PasswordHasher.HashPassword(request.NewPassword);
-
-                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
-
-            }
-            catch (Exception exception)
-            {
-                await _logger.LogMessageAsync("Could not update current user data.",
-                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
-            }
-        }
-
-        public async Task UpdateUserSettings(UserSettingsUpdateRequest updatedSettings)
-        {
-            try
-            {
-                var currentUser = _logicBase.GetCurrentUser();
-
-                var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.EmailAddress == currentUser.EmailAddress, false, x => x.UserSettings);
-
-                if (userEntity == null || userEntity.UserSettings == null || userEntity.UpdatedAt > updatedSettings.UpdatedAt)
-                {
-                    return;
-                }
-
-                userEntity.UserSettings.Culture = updatedSettings.Culture;
-                userEntity.UserSettings.IsAutoDataSyncEnabled = updatedSettings.IsAutoDataSyncEnabled;
-                userEntity.UserSettings.UseLocalDataStore = updatedSettings.UseLocalDataStore;
-
-                await _userUnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
-            }
-            catch (Exception exception)
-            {
-                await _logger.LogMessageAsync("Could not update current user settings.",
-                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
-            }
-        }
     }
 }
+
+
+      
+
+      

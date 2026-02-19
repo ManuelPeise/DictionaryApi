@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Shared.Models.Vocabulary.Sync;
 
-namespace Service.Api.Controllers.Administration
+namespace Service.Api.Controllers.Sync
 {
     public class VocabularySyncronizationController : ApiControllerBase
     {
-        private readonly IVocabularySyncronization _vocabularySyncronization;
+        private readonly IPushSyncronization _vocabularySyncronization;
 
-        public VocabularySyncronizationController(IVocabularySyncronization vocabularySyncronization)
+        public VocabularySyncronizationController(IPushSyncronization vocabularySyncronization)
         {
             _vocabularySyncronization = vocabularySyncronization;
         }
@@ -16,7 +16,9 @@ namespace Service.Api.Controllers.Administration
         [HttpPost(Name = "SyncVocabularyDataData")]
         public async Task<VocabularyDataSyncModel> SyncVocabularyDataData([FromBody] VocabularySyncRequestModel requestModel)
         {
-            return await _vocabularySyncronization.SyncData(requestModel);
+            //return await _vocabularySyncronization.SyncData(requestModel);
+
+            return null;
         }
     }
 }

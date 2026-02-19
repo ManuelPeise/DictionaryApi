@@ -43,6 +43,9 @@ namespace Data.Database.Migrations
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsImportedSuccessful")
                         .HasColumnType("tinyint(1)");
 
@@ -91,6 +94,9 @@ namespace Data.Database.Migrations
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("LogMessageType")
                         .HasColumnType("int");
 
@@ -136,6 +142,9 @@ namespace Data.Database.Migrations
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -162,6 +171,7 @@ namespace Data.Database.Migrations
                             CreatedBy = "System",
                             ExpireDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IdExternal = new Guid("01b8eb28-654b-4b34-9577-ad406be5b9c2"),
+                            IsDirty = false,
                             PasswordHash = "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = ""
@@ -194,6 +204,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -237,6 +250,7 @@ namespace Data.Database.Migrations
                             EmailAddress = "admin.user@app.com",
                             FirstName = "Admin",
                             IdExternal = new Guid("4fd79b86-8f6a-4202-9e6a-f556deb04da9"),
+                            IsDirty = false,
                             LastName = "User",
                             ProfileImage = new byte[0],
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -269,6 +283,9 @@ namespace Data.Database.Migrations
                     b.Property<bool>("IsAutoDataSyncEnabled")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -292,6 +309,7 @@ namespace Data.Database.Migrations
                             Culture = 0,
                             IdExternal = new Guid("fade763a-f81c-4872-8e42-d31839406565"),
                             IsAutoDataSyncEnabled = true,
+                            IsDirty = false,
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             UpdatedBy = "",
                             UseLocalDataStore = false
@@ -313,6 +331,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -343,6 +364,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("18fda2d3-3f6f-4963-8495-d498defbb54d"),
+                            IsDirty = false,
                             Name = "German",
                             ResourceKey = "LanguageGerman",
                             TranslationType = 0,
@@ -355,6 +377,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("16dd7950-90d0-4e80-a80b-a4268e65d736"),
+                            IsDirty = false,
                             Name = "English",
                             ResourceKey = "LanguageEnglish",
                             TranslationType = 2,
@@ -367,6 +390,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("65ae65cb-3dff-4d98-9a62-42b2cd8c6140"),
+                            IsDirty = false,
                             Name = "Danish",
                             ResourceKey = "LanguageDanish",
                             TranslationType = 1,
@@ -390,6 +414,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -417,6 +444,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("e70f0216-1360-41af-9e4c-40f06574deb4"),
+                            IsDirty = false,
                             Name = "adjective",
                             ResourceKey = "PartOfSpeache70f0216-1360-41af-9e4c-40f06574deb4",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -428,6 +456,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("132a81ea-c686-498e-b593-d6f871ffd6ea"),
+                            IsDirty = false,
                             Name = "adverb",
                             ResourceKey = "PartOfSpeach132a81ea-c686-498e-b593-d6f871ffd6ea",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -439,6 +468,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("00783292-d4f8-439e-bb2a-8ced803f0e70"),
+                            IsDirty = false,
                             Name = "article",
                             ResourceKey = "PartOfSpeach00783292-d4f8-439e-bb2a-8ced803f0e70",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -450,6 +480,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("3fd7b958-22fc-4389-9687-599b9d05d6d3"),
+                            IsDirty = false,
                             Name = "noun",
                             ResourceKey = "PartOfSpeach3fd7b958-22fc-4389-9687-599b9d05d6d3",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -461,6 +492,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("3548d4e7-e5fe-4280-9362-40b6016569b4"),
+                            IsDirty = false,
                             Name = "verb",
                             ResourceKey = "PartOfSpeach3548d4e7-e5fe-4280-9362-40b6016569b4",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -472,6 +504,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("06ebc0cd-7d23-4958-bb28-2b936f079359"),
+                            IsDirty = false,
                             Name = "preposition",
                             ResourceKey = "PartOfSpeach06ebc0cd-7d23-4958-bb28-2b936f079359",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -483,6 +516,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("ebc23f3f-7e7c-4dec-a50d-6a32917e9b48"),
+                            IsDirty = false,
                             Name = "pronoun",
                             ResourceKey = "PartOfSpeachebc23f3f-7e7c-4dec-a50d-6a32917e9b48",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -494,6 +528,7 @@ namespace Data.Database.Migrations
                             CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             CreatedBy = "System",
                             IdExternal = new Guid("7aac8e85-19ed-462e-8ef5-5a916c960133"),
+                            IsDirty = false,
                             Name = "proper noun",
                             ResourceKey = "PartOfSpeach7aac8e85-19ed-462e-8ef5-5a916c960133",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -519,6 +554,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -567,6 +605,9 @@ namespace Data.Database.Migrations
                     b.Property<string>("Ipa")
                         .HasColumnType("longtext");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsReviewRequired")
                         .HasColumnType("tinyint(1)");
 
@@ -614,6 +655,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("Success")
                         .HasColumnType("int");
@@ -665,6 +709,9 @@ namespace Data.Database.Migrations
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
 
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<int>("SessionType")
                         .HasColumnType("int");
 
@@ -706,6 +753,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("SessionId")
                         .HasColumnType("int");
@@ -751,6 +801,9 @@ namespace Data.Database.Migrations
 
                     b.Property<Guid>("IdExternal")
                         .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDirty")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");

@@ -7,7 +7,6 @@ namespace Logic.Import.DI
     {
         public static void RegisterImportServices(this IServiceCollection services)
         {
-            //services.AddScoped<IFileImporter, FileImporter>();
             services.AddScoped<IVocabularyImporter, VocabularyImporter>();
             services.AddScoped<IVocabularyValidationModule, VocabularyValidationModule>();
         }

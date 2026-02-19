@@ -8,7 +8,8 @@ namespace Logic.Administration.DI
         public static void RegisterAdministrationServices(this IServiceCollection services)
         {
             services.AddScoped<ILogService, LogService>();
-            services.AddScoped<IVocabularySyncronization, VocabularySyncronization>();
+            services.AddScoped<IPullSyncronization, PullSyncronization>();
+            services.AddScoped<IPushSyncronization, PushSyncronization>();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Data.Database.Seeds
             var timeStamp = DateTime.Parse("2026.01.01", CultureInfo.InvariantCulture);
 
             builder.HasData(new List<LanguageEntity> {
-            
+
                 new LanguageEntity
                 {
                     Id = 1,
@@ -21,6 +21,7 @@ namespace Data.Database.Seeds
                     Name = "German",
                     ResourceKey = "LanguageGerman",
                     TranslationType = TranslationEnum.De,
+                    IsDirty = false,
                     CreatedBy = "System",
                     CreatedAt = timeStamp,
                 },
@@ -31,6 +32,7 @@ namespace Data.Database.Seeds
                     Name = "English",
                     ResourceKey = "LanguageEnglish",
                     TranslationType = TranslationEnum.En,
+                    IsDirty = false,
                     CreatedBy = "System",
                     CreatedAt = timeStamp,
                 },
@@ -41,6 +43,7 @@ namespace Data.Database.Seeds
                     Name = "Danish",
                     ResourceKey = "LanguageDanish",
                     TranslationType = TranslationEnum.Da,
+                    IsDirty = false,
                     CreatedBy = "System",
                     CreatedAt = timeStamp,
                 }

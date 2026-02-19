@@ -22,6 +22,7 @@ namespace Data.Database.Seeds
                 EmailAddress = "admin.user@app.com",
                 DateOfBirth = DateTime.Parse("1980.04.20", CultureInfo.InvariantCulture),
                 UserRole = UserRoleEnum.Admin,
+                IsDirty = false,
                 CreatedAt = timeStamp,
                 CreatedBy = "System",
                 UserCredentialsId = 1,

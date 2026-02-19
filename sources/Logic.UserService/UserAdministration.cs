@@ -54,16 +54,21 @@ namespace Logic.UserService
                     UserRole = UserRoleEnum.User,
                     UserCredentials = new UserCredentialsEntity
                     {
+                        IdExternal = Guid.NewGuid(),
                         PasswordHash = PasswordHasher.HashPassword(requestModel.Password),
+                        IsDirty = false,
                         RefreshToken = null,
 
                     },
                     UserSettings = new UserSettingsEntity
                     {
+                        IdExternal = Guid.NewGuid(),
                         Culture = _userSettings.Culture,
                         IsAutoDataSyncEnabled = _userSettings.IsAutoDataSyncEnabled,
                         UseLocalDataStore = _userSettings.UseLocalDataStore,
+                        IsDirty = false,
                     },
+                    IsDirty = false,
                     CreatedAt = DateTime.UtcNow,
                     CreatedBy = "System",
                 };

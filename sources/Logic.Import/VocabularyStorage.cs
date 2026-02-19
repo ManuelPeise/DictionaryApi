@@ -54,8 +54,10 @@ namespace Logic.Import
 
                         await _unitOfWork.VocabularyUnitOfWork.VocabularyToCategoryRepository.AddAsync(new VocabularyToCategoryEntity
                         {
+                            IdExternal = Guid.NewGuid(),
                             VocabularyId = entity.Id,
                             CategoryId = categoryEntity.Id,
+                            IsDirty = false
                         });
 
                         databaseIsChanged = true;
@@ -66,6 +68,7 @@ namespace Logic.Import
                         {
                             Vocabulary = new VocabularyEntity
                             {
+                                IdExternal = Guid.NewGuid(),
                                 GroupGuid = groupGuid,
                                 Word = translation.Word,
                                 Article = translation.Article,
@@ -74,6 +77,7 @@ namespace Logic.Import
                                 IsReviewRequired = true,
                                 LanguageId = languageIdMap[translation.Language],
                                 PartOfSpeechId = partOfSpeechIdMap[translation.PartOfSpeech],
+                                IsDirty = false
                             },
                             Category = vocabularyCategoryMap[category],
                         });
@@ -116,6 +120,7 @@ namespace Logic.Import
                 entity.IsReviewRequired = !vocabulary.IsValidated;
                 entity.LanguageId = languageIdMap[vocabulary.Language];
                 entity.PartOfSpeechId = partOfSpeechIdMap[vocabulary.PartOfSpeech];
+                entity.IsDirty = false;
             }
 
             await _unitOfWork.SaveChangesAsync(user);

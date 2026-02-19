@@ -30,6 +30,7 @@ namespace Data.Database.Migrations
                     Status = table.Column<int>(type: "int", nullable: false),
                     FileBytes = table.Column<string>(type: "longtext", nullable: false),
                     IsImportedSuccessful = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -51,6 +52,7 @@ namespace Data.Database.Migrations
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     ResourceKey = table.Column<string>(type: "longtext", nullable: false),
                     TranslationType = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -74,6 +76,7 @@ namespace Data.Database.Migrations
                     StackTrace = table.Column<string>(type: "longtext", nullable: true),
                     Module = table.Column<string>(type: "longtext", nullable: false),
                     LogMessageType = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -94,6 +97,7 @@ namespace Data.Database.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     ResourceKey = table.Column<string>(type: "longtext", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -115,6 +119,7 @@ namespace Data.Database.Migrations
                     PasswordHash = table.Column<string>(type: "longtext", nullable: false),
                     RefreshToken = table.Column<string>(type: "longtext", nullable: true),
                     ExpireDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -136,6 +141,7 @@ namespace Data.Database.Migrations
                     Culture = table.Column<int>(type: "int", nullable: false),
                     UseLocalDataStore = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IsAutoDataSyncEnabled = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -157,6 +163,7 @@ namespace Data.Database.Migrations
                     GroupGuid = table.Column<Guid>(type: "char(36)", nullable: false),
                     Name = table.Column<string>(type: "longtext", nullable: false),
                     SourceLanguage = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -183,6 +190,7 @@ namespace Data.Database.Migrations
                     IsReviewRequired = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     LanguageId = table.Column<int>(type: "int", nullable: false),
                     PartOfSpeechId = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -221,6 +229,7 @@ namespace Data.Database.Migrations
                     UserRole = table.Column<int>(type: "int", nullable: false),
                     UserCredentialsId = table.Column<int>(type: "int", nullable: false),
                     UserSettingsId = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -254,6 +263,7 @@ namespace Data.Database.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     SessionType = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -280,6 +290,7 @@ namespace Data.Database.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     VocabularyId = table.Column<int>(type: "int", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -316,6 +327,7 @@ namespace Data.Database.Migrations
                     Failed = table.Column<int>(type: "int", nullable: false),
                     VocabularyId = table.Column<int>(type: "int", nullable: false),
                     VocabularySessionEntityId = table.Column<int>(type: "int", nullable: true),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -351,6 +363,7 @@ namespace Data.Database.Migrations
                     Success = table.Column<int>(type: "int", nullable: false),
                     Failed = table.Column<int>(type: "int", nullable: false),
                     SessionId = table.Column<int>(type: "int", nullable: false),
+                    IsDirty = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     IdExternal = table.Column<Guid>(type: "char(36)", nullable: false),
                     CreatedBy = table.Column<string>(type: "longtext", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -396,43 +409,43 @@ namespace Data.Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "LanguageTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IdExternal", "Name", "ResourceKey", "TranslationType", "UpdatedAt", "UpdatedBy" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IdExternal", "IsDirty", "Name", "ResourceKey", "TranslationType", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("18fda2d3-3f6f-4963-8495-d498defbb54d"), "German", "LanguageGerman", 0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("16dd7950-90d0-4e80-a80b-a4268e65d736"), "English", "LanguageEnglish", 2, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("65ae65cb-3dff-4d98-9a62-42b2cd8c6140"), "Danish", "LanguageDanish", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
+                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("18fda2d3-3f6f-4963-8495-d498defbb54d"), false, "German", "LanguageGerman", 0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("16dd7950-90d0-4e80-a80b-a4268e65d736"), false, "English", "LanguageEnglish", 2, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("65ae65cb-3dff-4d98-9a62-42b2cd8c6140"), false, "Danish", "LanguageDanish", 1, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
                 });
 
             migrationBuilder.InsertData(
                 table: "PartOfSpeachTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IdExternal", "Name", "ResourceKey", "UpdatedAt", "UpdatedBy" },
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "IdExternal", "IsDirty", "Name", "ResourceKey", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("e70f0216-1360-41af-9e4c-40f06574deb4"), "adjective", "PartOfSpeache70f0216-1360-41af-9e4c-40f06574deb4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("132a81ea-c686-498e-b593-d6f871ffd6ea"), "adverb", "PartOfSpeach132a81ea-c686-498e-b593-d6f871ffd6ea", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("00783292-d4f8-439e-bb2a-8ced803f0e70"), "article", "PartOfSpeach00783292-d4f8-439e-bb2a-8ced803f0e70", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 4, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("3fd7b958-22fc-4389-9687-599b9d05d6d3"), "noun", "PartOfSpeach3fd7b958-22fc-4389-9687-599b9d05d6d3", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 5, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("3548d4e7-e5fe-4280-9362-40b6016569b4"), "verb", "PartOfSpeach3548d4e7-e5fe-4280-9362-40b6016569b4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 6, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("06ebc0cd-7d23-4958-bb28-2b936f079359"), "preposition", "PartOfSpeach06ebc0cd-7d23-4958-bb28-2b936f079359", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 7, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("ebc23f3f-7e7c-4dec-a50d-6a32917e9b48"), "pronoun", "PartOfSpeachebc23f3f-7e7c-4dec-a50d-6a32917e9b48", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
-                    { 8, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("7aac8e85-19ed-462e-8ef5-5a916c960133"), "proper noun", "PartOfSpeach7aac8e85-19ed-462e-8ef5-5a916c960133", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
+                    { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("e70f0216-1360-41af-9e4c-40f06574deb4"), false, "adjective", "PartOfSpeache70f0216-1360-41af-9e4c-40f06574deb4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 2, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("132a81ea-c686-498e-b593-d6f871ffd6ea"), false, "adverb", "PartOfSpeach132a81ea-c686-498e-b593-d6f871ffd6ea", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 3, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("00783292-d4f8-439e-bb2a-8ced803f0e70"), false, "article", "PartOfSpeach00783292-d4f8-439e-bb2a-8ced803f0e70", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 4, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("3fd7b958-22fc-4389-9687-599b9d05d6d3"), false, "noun", "PartOfSpeach3fd7b958-22fc-4389-9687-599b9d05d6d3", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 5, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("3548d4e7-e5fe-4280-9362-40b6016569b4"), false, "verb", "PartOfSpeach3548d4e7-e5fe-4280-9362-40b6016569b4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 6, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("06ebc0cd-7d23-4958-bb28-2b936f079359"), false, "preposition", "PartOfSpeach06ebc0cd-7d23-4958-bb28-2b936f079359", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 7, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("ebc23f3f-7e7c-4dec-a50d-6a32917e9b48"), false, "pronoun", "PartOfSpeachebc23f3f-7e7c-4dec-a50d-6a32917e9b48", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" },
+                    { 8, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new Guid("7aac8e85-19ed-462e-8ef5-5a916c960133"), false, "proper noun", "PartOfSpeach7aac8e85-19ed-462e-8ef5-5a916c960133", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" }
                 });
 
             migrationBuilder.InsertData(
                 table: "UserCredentialsTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "ExpireDate", "IdExternal", "PasswordHash", "RefreshToken", "UpdatedAt", "UpdatedBy" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("01b8eb28-654b-4b34-9577-ad406be5b9c2"), "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "ExpireDate", "IdExternal", "IsDirty", "PasswordHash", "RefreshToken", "UpdatedAt", "UpdatedBy" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new Guid("01b8eb28-654b-4b34-9577-ad406be5b9c2"), false, "$2a$12$ZUdEbhrrKfyY2zomnIEXXOUVtIQ6J8VeWFk40bcGtceHfRG5cBlVC", null, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "" });
 
             migrationBuilder.InsertData(
                 table: "UserSettingsTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Culture", "IdExternal", "IsAutoDataSyncEnabled", "UpdatedAt", "UpdatedBy", "UseLocalDataStore" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 0, new Guid("fade763a-f81c-4872-8e42-d31839406565"), true, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", false });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "Culture", "IdExternal", "IsAutoDataSyncEnabled", "IsDirty", "UpdatedAt", "UpdatedBy", "UseLocalDataStore" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", 0, new Guid("fade763a-f81c-4872-8e42-d31839406565"), true, false, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", false });
 
             migrationBuilder.InsertData(
                 table: "UserTable",
-                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DateOfBirth", "EmailAddress", "FirstName", "IdExternal", "LastName", "ProfileImage", "UpdatedAt", "UpdatedBy", "UserCredentialsId", "UserRole", "UserSettingsId" },
-                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1980, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin.user@app.com", "Admin", new Guid("4fd79b86-8f6a-4202-9e6a-f556deb04da9"), "User", new byte[0], new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", 1, 1, 1 });
+                columns: new[] { "Id", "CreatedAt", "CreatedBy", "DateOfBirth", "EmailAddress", "FirstName", "IdExternal", "IsDirty", "LastName", "ProfileImage", "UpdatedAt", "UpdatedBy", "UserCredentialsId", "UserRole", "UserSettingsId" },
+                values: new object[] { 1, new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "System", new DateTime(1980, 4, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin.user@app.com", "Admin", new Guid("4fd79b86-8f6a-4202-9e6a-f556deb04da9"), false, "User", new byte[0], new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "", 1, 1, 1 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserTable_UserCredentialsId",

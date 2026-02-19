@@ -2,15 +2,6 @@
 
 namespace Shared.Models.KaikkiJsonModels
 {
-    public class KaikkiJsonModel
-    {
-        public DateTime TimeStamp { get; set; }
-        public string Source { get; set; } = "https://kaikki.org/";
-        public string Licence { get; set; } = "https://creativecommons.org/licenses/by-sa/4.0/";
-        public int Count { get; set; }
-        public List<KaikkiJsonDataModel> Data { get; set; } = new List<KaikkiJsonDataModel>();
-    }
-
     public class KaikkiJsonDataModel
     {
         public string? PartOfSpeech { get; set; } = string.Empty;

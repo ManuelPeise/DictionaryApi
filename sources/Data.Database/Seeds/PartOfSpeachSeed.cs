@@ -41,6 +41,7 @@ namespace Data.Database.Seeds
                     IdExternal = new Guid(pos[key]),
                     Name = key,
                     ResourceKey = $"PartOfSpeach{pos[key]}",
+                    IsDirty = false,
                     CreatedBy = "System",
                     CreatedAt = timeStamp,
                 });

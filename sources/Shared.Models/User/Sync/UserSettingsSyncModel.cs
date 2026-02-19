@@ -1,13 +1,12 @@
 ﻿using Shared.Enums;
+using Shared.Models.Vocabulary.Sync;
 
-namespace Shared.Models.Settings
+namespace Shared.Models.User.Sync
 {
-    public class UserSettingsUpdateRequest
+    public class UserSettingsSyncModel:SyncModelBase
     {
         public CultureEnum Culture { get; set; }
         public bool IsAutoDataSyncEnabled { get; set; }
         public bool UseLocalDataStore { get; set; }
-        public string UpdatedBy { get; set; } = string.Empty;
-        public DateTime UpdatedAt { get; set; }
     }
 }

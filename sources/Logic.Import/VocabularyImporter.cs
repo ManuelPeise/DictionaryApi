@@ -51,13 +51,15 @@ namespace Logic.Import
 
                 var importFileEntity = new ImportFileEntity
                 {
+                    IdExternal = Guid.NewGuid(),
                     FileName = fileUploadModel.FileName,
                     FileBytes = fileUploadModel.File,
                     Key = fileUploadModel.Topic,
                     SourceLanguage = fileUploadModel.SourceLanguage,
                     Translations = fileUploadModel.Translations,
                     Status = FileImportStatus.Pending,
-                    IsImportedSuccessful = false
+                    IsImportedSuccessful = false,
+                    IsDirty = false,
                 };
 
                 await ImportPendingFiles(new List<ImportFileEntity> { importFileEntity });

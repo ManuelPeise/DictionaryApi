@@ -20,6 +20,7 @@ namespace Data.Database.Seeds
                     Culture = CultureEnum.English,
                     IsAutoDataSyncEnabled = true,
                     UseLocalDataStore = false,
+                    IsDirty = false,
                     CreatedAt = timeStamp,
                     CreatedBy = "System",
                 }
