@@ -76,6 +76,24 @@ namespace Data.Accessor
             return table.FirstOrDefaultAsync(e => e.Id == id);
         }
 
+        public Task<TEntity?> FirstOrDefaultByIdExternalAsync(
+            Guid idExternal, 
+            bool asNoTracking = false, 
+            Expression<Func<TEntity, object>>? includeExpression = null)
+        {
+            var table = _table.AsQueryable();
+            if (asNoTracking)
+            {
+                table = table.AsNoTracking();
+            }
+            if (includeExpression != null)
+            {
+                table = table.Include(includeExpression);
+            }
+
+            return table.FirstOrDefaultAsync(e => e.IdExternal == idExternal);
+        }
+
         public Task<TEntity?> FirstOrDefaultAsync(
             Expression<Func<TEntity, bool>> whereExpression,
             bool asNoTracking = false,

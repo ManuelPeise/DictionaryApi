@@ -45,7 +45,7 @@ namespace Logic.UserService
 
                 var newUserEntity = new UserEntity
                 {
-                    UserIdExternal = Guid.NewGuid().ToString(),
+                    IdExternal = Guid.NewGuid(),
                     FirstName = requestModel.FirstName,
                     LastName = requestModel.LastName,
                     DateOfBirth = requestModel.DateOfBirth,

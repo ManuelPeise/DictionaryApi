@@ -16,7 +16,7 @@ namespace Data.Database.Seeds
             builder.HasData(new UserEntity
             {
                 Id = 1,
-                UserIdExternal = "95f6f461-b8eb-48f8-aecf-78bbd0cc0c3d",
+                IdExternal = new Guid("4fd79b86-8f6a-4202-9e6a-f556deb04da9"),
                 FirstName = "Admin",
                 LastName = "User",
                 EmailAddress = "admin.user@app.com",

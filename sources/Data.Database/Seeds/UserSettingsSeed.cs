@@ -16,6 +16,7 @@ namespace Data.Database.Seeds
                 new UserSettingsEntity
                 {
                     Id = 1,
+                    IdExternal = new Guid("fade763a-f81c-4872-8e42-d31839406565"),
                     Culture = CultureEnum.English,
                     IsAutoDataSyncEnabled = true,
                     UseLocalDataStore = false,

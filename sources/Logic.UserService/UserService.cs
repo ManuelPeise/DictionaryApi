@@ -175,7 +175,7 @@ namespace Logic.UserService
                 var currentUser = _logicBase.GetCurrentUser();
 
                 var userEntity = await _userUnitOfWork.UserRepository.FirstOrDefaultAsync(user =>
-                    user.UserIdExternal == request.IdExternal, false, x => x.UserCredentials);
+                    user.IdExternal == request.IdExternal, false, x => x.UserCredentials);
 
                 if (userEntity == null || userEntity.UserCredentials == null || !PasswordHasher.VerifyPassword(request.CurrentPassword, userEntity.UserCredentials.PasswordHash))
                 {

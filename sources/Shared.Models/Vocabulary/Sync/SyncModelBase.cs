@@ -1,8 +1,7 @@
-﻿namespace Data.Database.Entities
+﻿namespace Shared.Models.Vocabulary.Sync
 {
-    public abstract class AEntityBase
+    public class SyncModelBase
     {
-        public int Id { get; set; }
         public Guid IdExternal { get; set; }
         public string CreatedBy { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }

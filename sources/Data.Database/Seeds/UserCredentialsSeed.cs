@@ -16,6 +16,7 @@ namespace Data.Database.Seeds
             builder.HasData(new UserCredentialsEntity
             {
                 Id = 1,
+                IdExternal = new Guid("01b8eb28-654b-4b34-9577-ad406be5b9c2"),
                 PasswordHash = PasswortHash,
                 CreatedAt = timeStamp,
                 CreatedBy = "System"

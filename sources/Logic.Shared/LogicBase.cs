@@ -50,7 +50,7 @@ namespace Logic.Shared
             var currentUser = new UserModel
             {
                 Id = userEntity.Id,
-                UserIdExternal = userEntity.UserIdExternal,
+                IdExternal = userEntity.IdExternal,
                 FirstName = userEntity.FirstName,
                 LastName = userEntity.LastName,
                 EmailAddress = userEntity.EmailAddress,

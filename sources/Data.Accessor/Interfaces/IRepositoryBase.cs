@@ -51,6 +51,23 @@ namespace Data.Accessor.Interfaces
             bool asNoTracking = false,
             Expression<Func<TEntity, object>>? includeExpression = null);
         /// <summary>
+        /// Asynchronously retrieves the first entity that matches the specified external identifier, or returns null if
+        /// no such entity exists.
+        /// </summary>
+        /// <remarks>Use this method to efficiently retrieve an entity by its external identifier,
+        /// especially in scenarios where change tracking is not required. Including related entities can be useful for
+        /// loading associated data in a single query.</remarks>
+        /// <param name="idExternal">The external identifier of the entity to retrieve. Must be a valid <see cref="System.Guid"/>.</param>
+        /// <param name="asNoTracking">Specifies whether the entity should be returned without being tracked by the context. Set to <see
+        /// langword="true"/> to improve performance for read-only operations.</param>
+        /// <param name="includeExpression">An optional expression that specifies related entities to include in the query results for eager loading.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the entity that matches the
+        /// specified external identifier, or null if no entity is found.</returns>
+        Task<TEntity?> FirstOrDefaultByIdExternalAsync(
+            Guid idExternal,
+            bool asNoTracking = false,
+            Expression<Func<TEntity, object>>? includeExpression = null);
+        /// <summary>
         /// Asynchronously returns the first entity that matches the specified criteria, or a default value if no such
         /// entity is found.
         /// </summary>
