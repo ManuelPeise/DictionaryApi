@@ -42,11 +42,31 @@ services:
     ports:
       - "5000:8080"
     depends_on:
-      mysql:
+      mysql: 
         condition: service_healthy
     networks:
       - dictionary-network
     restart: on-failure
+
+  libretranslate:
+    image: libretranslate/libretranslate:latest
+    container_name: libretranslate
+    ports:
+      - "80:80"
+    networks:
+      - dictionary-network
+    restart: unless-stopped
+
+  web-app:
+    build:
+      context: ./sources/Web.App/web-app
+      dockerfile: Dockerfile
+    container_name: web-app
+    ports:
+      - "3000:3000"
+    networks:
+      - dictionary-network
+    restart: unless-stopped
 
 volumes:
   mysql_data:

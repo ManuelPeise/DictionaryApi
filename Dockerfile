@@ -13,11 +13,12 @@ COPY ["sources/Logic.Words/Logic.Words.csproj", "sources/Logic.Words/"]
 COPY ["sources/Service.Api/Service.Api.csproj", "sources/Service.Api/"]
 COPY ["sources/Web.Core/Web.Core.csproj", "sources/Web.Core/"]
 
-# Restore dependencies for Web.Core (main entry point)
-RUN dotnet restore "sources/Web.Core/Web.Core.csproj"
 
-# Copy all source files
+# Copy all source files first
 COPY sources/ sources/
+
+# Restore dependencies for Web.Core (main entry point) after all sources are present
+RUN dotnet restore "sources/Web.Core/Web.Core.csproj"
 
 # Build and Publish Web.Core project
 WORKDIR "/src/sources/Web.Core"

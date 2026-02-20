@@ -72,7 +72,7 @@ const AuthContextProvider: React.FC<IAuthContextProps> = (props: IAuthContextPro
     headers.append('Authorization', `Bearer ${tokenData.accessToken}`);
     headers.append('Content-Type', 'application/json');
 
-    const response = await fetch(`${process.env.REACT_APP_API_URL}userservice/getcurrentuser`, {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}syncronization/pulluserdata`, {
       method: 'GET',
       mode: 'cors',
       headers: headers,
