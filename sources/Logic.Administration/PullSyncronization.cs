@@ -4,6 +4,7 @@ using Logic.Administration.Interfaces;
 using Logic.Shared;
 using Microsoft.AspNetCore.Http;
 using Shared.Enums;
+using Shared.Models.User.Sync;
 using Shared.Models.Vocabulary.Sync;
 
 namespace Logic.Administration
@@ -15,6 +16,72 @@ namespace Logic.Administration
             base(dbContext, httpContextAccessor, unitOfWork)
         {
             _logger = new Logger<PullSyncronization>(dbContext);
+        }
+
+        public async Task<UserDataSyncModel?> PullUserData()
+        {
+            try
+            {
+
+                var currentUser = GetCurrentUser();
+
+                var userEntity = await UnitOfWork.UserRepository.FirstOrDefaultByIdAsync(currentUser.Id);
+
+                if (userEntity == null)
+                {
+                    throw new Exception($"User with id {currentUser.Id} not found.");
+                }
+
+                await UnitOfWork.UserCredentialsRepository.FirstOrDefaultByIdAsync(userEntity.UserCredentialsId);
+                await UnitOfWork.UserSettingsRepository.FirstOrDefaultByIdAsync(userEntity.UserSettingsId);
+
+                return new UserDataSyncModel
+                {
+                    IdExternal = userEntity.IdExternal,
+                    FirstName = userEntity.FirstName,
+                    LastName = userEntity.LastName,
+                    UserName = userEntity.UserName,
+                    EmailAddress = userEntity.EmailAddress,
+                    ProfileImage = userEntity.ProfileImage,
+                    DateOfBirth = userEntity.DateOfBirth,
+                    UserRole = userEntity.UserRole,
+                    UserCredentialsId = userEntity.UserCredentialsId,
+                    UserCredentials = new UserCredentialsSyncModel
+                    {
+                        IdExternal = userEntity.UserCredentials?.IdExternal ?? Guid.Empty,
+                        PasswordHash = userEntity.UserCredentials?.PasswordHash ?? string.Empty,
+                        IsDirty = false,
+                        CreatedAt = userEntity.UserCredentials?.CreatedAt ?? DateTime.MinValue,
+                        CreatedBy = userEntity.UserCredentials?.CreatedBy ?? string.Empty,
+                        UpdatedAt = userEntity.UserCredentials?.UpdatedAt ?? DateTime.MinValue,
+                        UpdatedBy = userEntity.UserCredentials?.UpdatedBy ?? string.Empty
+                    },
+                    UserSettingsId = userEntity.UserSettingsId,
+                    UserSettings = new UserSettingsSyncModel
+                    {
+                        IdExternal = userEntity.UserSettings?.IdExternal ?? Guid.Empty,
+                        IsAutoDataSyncEnabled = userEntity.UserSettings?.IsAutoDataSyncEnabled ?? false,
+                        UseLocalDataStore = userEntity.UserSettings?.UseLocalDataStore ?? false,
+                        IsDirty = false,
+                        CreatedAt = userEntity.UserSettings?.CreatedAt ?? DateTime.MinValue,
+                        CreatedBy = userEntity.UserSettings?.CreatedBy ?? string.Empty,
+                        UpdatedAt = userEntity.UserSettings?.UpdatedAt ?? DateTime.MinValue,
+                        UpdatedBy = userEntity.UserSettings?.UpdatedBy ?? string.Empty
+                    },
+                    IsDirty = false,
+                    CreatedAt = userEntity.CreatedAt,
+                    CreatedBy = userEntity.CreatedBy,
+                    UpdatedAt = userEntity.UpdatedAt,
+                    UpdatedBy = userEntity.UpdatedBy
+                };
+
+            }
+            catch (Exception exception)
+            {
+                await _logger.LogMessageAsync($"An error occurred while pulling user data sync model.",
+                    LogMessageTypeEnum.Error, exception.Message, exception.StackTrace);
+                return null;
+            }
         }
 
         public async Task<List<VocabularyLanguageSyncModel>> PullVocabularyLanguageSyncModels()

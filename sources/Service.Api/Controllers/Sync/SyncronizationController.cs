@@ -16,6 +16,42 @@ namespace Service.Api.Controllers.Sync
             _pullSyncronization = pullSyncronization;
         }
 
+
+        [ApiAuthentication]
+        [HttpGet(Name = "PullUserData")]
+        public async Task<UserDataSyncModel?> PullUserData()
+        {
+            return await _pullSyncronization.PullUserData();
+        }
+
+        [ApiAuthentication]
+        [HttpGet(Name = "PullVocabularyLanguageSyncModels")]
+        public async Task<List<VocabularyLanguageSyncModel>?> PullVocabularyLanguageSyncModels()
+        {
+            return await _pullSyncronization.PullVocabularyLanguageSyncModels();
+        }
+
+        [ApiAuthentication]
+        [HttpGet(Name = "PullPartOfSpeechSyncModels")]
+        public async Task<List<VocabularyPartOfSpeechSyncModel>?> PullPartOfSpeechSyncModels()
+        {
+            return await _pullSyncronization.PullPartOfSpeechSyncModels();
+        }
+
+        [ApiAuthentication]
+        [HttpGet(Name = "PullVocabularyCategorySyncModels")]
+        public async Task<List<VocabularyCategorySyncModel>?> PullVocabularyCategorySyncModels()
+        {
+            return await _pullSyncronization.PullVocabelCategorySyncModels();
+        }
+
+        [ApiAuthentication]
+        [HttpGet(Name = "PullVocabularyToCategorySyncModels")]
+        public async Task<List<VocabularyToCategorySyncModel>?> PullVocabularyToCategorySyncModels([FromBody] List<Guid> externalsIds)
+        {
+            return await _pullSyncronization.PullVocabularyToCategorySyncModels(externalsIds);
+        }
+
         [HttpPost(Name = "SyncUserData")]
         public async Task<UserDataSyncModel?> SyncUserData([FromBody] UserDataSyncModel requestModel)
         {
@@ -43,33 +79,7 @@ namespace Service.Api.Controllers.Sync
             return await _pushSyncronization.SyncVocabularySessionResults(requestModel);
         }
 
-        [ApiAuthentication]
-        [HttpPost(Name = "PullVocabularyLanguageSyncModels")]
-        public async Task<List<VocabularyLanguageSyncModel>?> PullVocabularyLanguageSyncModels()
-        {
-            return await _pullSyncronization.PullVocabularyLanguageSyncModels();
-        }
-
-        [ApiAuthentication]
-        [HttpPost(Name = "PullPartOfSpeechSyncModels")]
-        public async Task<List<VocabularyPartOfSpeechSyncModel>?> PullPartOfSpeechSyncModels()
-        {
-            return await _pullSyncronization.PullPartOfSpeechSyncModels();
-        }
-
-        [ApiAuthentication]
-        [HttpPost(Name = "PullVocabularyCategorySyncModels")]
-        public async Task<List<VocabularyCategorySyncModel>?> PullVocabularyCategorySyncModels()
-        {
-            return await _pullSyncronization.PullVocabelCategorySyncModels();
-        }
-
-        [ApiAuthentication]
-        [HttpPost(Name = "PullVocabularyToCategorySyncModels")]
-        public async Task<List<VocabularyToCategorySyncModel>?> PullVocabularyToCategorySyncModels([FromBody] List<Guid> externalsIds)
-        {
-            return await _pullSyncronization.PullVocabularyToCategorySyncModels(externalsIds);
-        }
+      
 
 
     }
