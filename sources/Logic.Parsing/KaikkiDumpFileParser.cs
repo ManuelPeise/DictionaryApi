@@ -18,7 +18,6 @@ namespace Logic.Parsing
         private readonly string _requestUrl = "https://kaikki.org/dictionary/raw-wiktextract-data.jsonl.gz";
         private readonly FileSystemConfiguration _fileSystemConfiguration;
         private readonly HttpClient _httpClient;
-        private readonly string _dumpFileJsonFilePath;
 
         public KaikkiDumpFileParser(
             DatabaseContext dbContext,
@@ -34,21 +33,25 @@ namespace Logic.Parsing
             };
             _fileSystemConfiguration = fileSystemConfiguration.Value;
 
-            _dumpFileJsonFilePath = Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _fileSystemConfiguration.KaikkiBackupFolder), "raw-wiktextract-data.json");
+
 
         }
 
         public async Task<Dictionary<KaikkiKey, List<KaikkiModel>>> GetKaikkiWordDictionary(List<TranslationEnum> translations)
         {
             var dictionary = new Dictionary<KaikkiKey, List<KaikkiModel>>();
+            string json;
 
-            if (!File.Exists(_dumpFileJsonFilePath))
+            using (var stream = new MemoryStream(Resx.Files.Kaikki))
+            using (var reader = new StreamReader(stream))
             {
-                await ParseFileStream(translations);
-
+                json = await reader.ReadToEndAsync();
             }
 
-            var json = await File.ReadAllTextAsync(_dumpFileJsonFilePath);
+            if (string.IsNullOrEmpty(json))
+            {
+                return dictionary;
+            }
 
             var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, List<KaikkiModel>>>(json) ?? new Dictionary<string, List<KaikkiModel>>();
 
@@ -63,10 +66,9 @@ namespace Logic.Parsing
             }
 
             return dictionary;
-
         }
 
-        public async Task ParseFileStream(List<TranslationEnum> translations)
+        public async Task<bool> ParseFileStream(List<TranslationEnum> translations)
         {
             var dictionary = new Dictionary<string, List<KaikkiModel>>();
 
@@ -104,9 +106,19 @@ namespace Logic.Parsing
                         }
                     }
 
-                    if (File.Exists(_dumpFileJsonFilePath) && dictionary.Keys.Any())
+                    var fileName = "raw-wiktextract-data.json";
+                    var directory = Path.Combine(AppContext.BaseDirectory, _fileSystemConfiguration.KaikkiJsonFolder);
+
+                    if (!Directory.Exists(directory))
                     {
-                        File.Delete(_dumpFileJsonFilePath);
+                        Directory.CreateDirectory(directory);
+                    }
+
+                    var filePath = Path.Combine(directory, fileName);
+
+                    if (File.Exists(filePath) && dictionary.Keys.Any())
+                    {
+                        File.Delete(filePath);
                     }
 
                     if (dictionary.Keys.Any())
@@ -119,9 +131,11 @@ namespace Logic.Parsing
 
                         var json = JsonSerializer.Serialize(dictionary, serialitzerOptions);
 
-                        File.WriteAllText(_dumpFileJsonFilePath, json);
+                        File.WriteAllText(filePath, json);
                     }
                 }
+
+                return true;
             }
             catch (Exception exception)
             {
@@ -130,6 +144,8 @@ namespace Logic.Parsing
                     LogMessageTypeEnum.Error,
                     exception.Message,
                     exception.StackTrace);
+
+                return false;
             }
         }
 

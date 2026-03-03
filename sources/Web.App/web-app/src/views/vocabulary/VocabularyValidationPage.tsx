@@ -50,7 +50,7 @@ const VocabularyValidationPageContainer: React.FC = () => {
       await vovabularyApi
         .sendPostRequest<void>(
           `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
-          JSON.stringify(model),
+          model,
         )
         .then(async () => {
           await loadInitialModel(fetchInitialDataCallback, setInitialData);

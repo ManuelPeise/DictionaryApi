@@ -20,6 +20,7 @@
   <Folder Name="/05 Shared/">
     <Project Path="Shared.Enums/Shared.Enums.csproj" Id="82beaac3-7920-4967-9962-94bc65ae4daf" />
     <Project Path="Shared.Models/Shared.Models.csproj" Id="801d3ad0-ff27-4929-8c71-d241a1590d89" />
+    <Project Path="Shared.Resources/Shared.Resources.csproj" Id="0ba0cfbb-b8ce-4f9c-9e2e-f9c682522b64" />
   </Folder>
   <Folder Name="/Projektmappenelemente/">
     <File Path="AGENT.md" />

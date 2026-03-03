@@ -13,16 +13,16 @@ namespace Service.Api.Controllers.Words
             _kaikkiDumpFileParser = kaikkiDumpFileParser;
         }
 
-        // [UserRoleAuthentication(RequiredRole = UserRoleEnum.MaintenanceUser)]
+        [UserRoleAuthentication(RequiredRole = UserRoleEnum.MaintenanceUser)]
         [HttpPost(Name = "ExecuteDumpFileParser")]
         public async Task ExecuteDumpFileParser()
         {
-            await _kaikkiDumpFileParser.GetKaikkiWordDictionary(new List<TranslationEnum>
-            {
-               TranslationEnum.De,
-               TranslationEnum.En,
-               TranslationEnum.Da
-            });
+            //await _kaikkiDumpFileParser.ParseFileStream(new List<TranslationEnum>
+            //{
+            //   TranslationEnum.De,
+            //   TranslationEnum.En,
+            //   TranslationEnum.Da
+            //});
         }
     }
 }

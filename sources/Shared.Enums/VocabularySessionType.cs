@@ -3,6 +3,7 @@
     public enum VocabularySessionType
     {
         Training = 1,
-        Exam = 2
+		View = 2,
+        Exam = 3
     }
 }

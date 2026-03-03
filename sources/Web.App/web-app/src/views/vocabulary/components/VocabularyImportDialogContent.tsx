@@ -75,7 +75,6 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
 
   const handleTranslationChanged = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement, Element>, checked: boolean) => {
-      console.log(checked);
       if (isNaN(Number(event.target.value))) {
         return;
       }

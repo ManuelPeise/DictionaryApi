@@ -17,17 +17,19 @@ namespace Web.Core.StartUp
 
             var apiBaseUrl = configuration.GetSection("ApiSettings").Get<ApiSettings>()?.ApiBaseUrl;
 
-            var currentDateTime = DateTime.UtcNow;
+            var currentDateTime = DateTime.Now;
 
-            await AddJob(scheduler, "Scheduler service", "Scheduler service",
+            var startTime = DateTimeOffset.Now.AddMinutes(2);
+
+            await AddJob(scheduler, "Kaikki service", "Kaikki dump file service",
                 new JobDataMap
                 {
-                    { "Url", $"{apiBaseUrl}TaskSchedule/ExecutePendingTasks" }
+                    { "Url", $"{apiBaseUrl}KaikkiService/ExecuteDumpFileParser" }
                 },
-                GetNextInterval(currentDateTime, 5),
-                "0 0/5 * * * ?");
+                GetNextInterval(startTime, 15),
+                "0 0/30 * * * ?"); // "0 0 7 1 * ?"
 
-            // await scheduler.Start();
+            await scheduler.Start();
         }
 
         private static async Task AddJob(

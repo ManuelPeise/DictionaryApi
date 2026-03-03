@@ -53,7 +53,7 @@ const VocabularyGroupList: React.FC<IProps> = (props) => {
         <Grid size={12} padding={4}>
           <SwitchWithLabel
             label="Alle Vokabeln anzeigen"
-            disabled={categoryDropdownItems.length === 0 || selectedCategoryId == 0}
+            disabled={categoryDropdownItems.length === 0 || selectedCategoryId === 0}
             value={showAll}
             onChange={setShowAll}
           />

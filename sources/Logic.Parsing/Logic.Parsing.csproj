@@ -10,6 +10,7 @@
     <ProjectReference Include="..\Data.Database\Data.Database.csproj" />
     <ProjectReference Include="..\Logic.Shared\Logic.Shared.csproj" />
     <ProjectReference Include="..\Shared.Enums\Shared.Enums.csproj" />
+    <ProjectReference Include="..\Shared.Resources\Shared.Resources.csproj" />
   </ItemGroup>
 
 </Project>
