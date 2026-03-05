@@ -1,18 +1,15 @@
 ﻿using Data.Accessor.Interfaces;
 using Data.Database;
-using Data.Database.Entities.Files;
 using Logic.Import.Interfaces;
 using Logic.Parsing.Interfaces;
 using Logic.Parsing.Models;
 using Logic.Shared;
+using Logic.Shared.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models.Import;
-using Shared.Models.Settings;
 using Shared.Models.Vocabulary;
 using Shared.Models.Words;
-using System.Text.Json;
 
 namespace Logic.Import
 {
@@ -26,21 +23,22 @@ namespace Logic.Import
         private const string IpaColumn = "Ipa";
 
         private readonly Logger<VocabularyImporter> _logger;
-        private readonly HttpClient _httpClient;
-        private readonly ApiSettings _apiSettings;
+
         private readonly IKaikkiDumpFileParser _kaikkiDumpFileParser;
+        private readonly ILibreTranslateClient _libreTranslateClient;
+
         public VocabularyImporter(
             DatabaseContext dbContext,
             IHttpContextAccessor httpContextAccessor,
             IUnitOfWork unitOfWork,
             IKaikkiDumpFileParser kaikkiDumpFileParser,
-            IOptions<ApiSettings> options)
+            ILibreTranslateClient libreTranslateClient)
             : base(dbContext, httpContextAccessor, unitOfWork)
         {
             _logger = new Logger<VocabularyImporter>(dbContext);
             _kaikkiDumpFileParser = kaikkiDumpFileParser;
-            _httpClient = new HttpClient();
-            _apiSettings = options.Value;
+            _libreTranslateClient = libreTranslateClient;
+
         }
 
         public async Task<bool> ImportVocabularyFileAsync(VocabularyFileUpload fileUploadModel)
@@ -49,27 +47,7 @@ namespace Logic.Import
             {
                 var currentUser = GetCurrentUser();
 
-                var importFileEntity = new ImportFileEntity
-                {
-                    IdExternal = Guid.NewGuid(),
-                    FileName = fileUploadModel.FileName,
-                    FileBytes = fileUploadModel.File,
-                    Key = fileUploadModel.Topic,
-                    SourceLanguage = fileUploadModel.SourceLanguage,
-                    Translations = fileUploadModel.Translations,
-                    Status = FileImportStatus.Pending,
-                    IsImportedSuccessful = false,
-                    IsDirty = false,
-                };
-
-                await ImportPendingFiles(new List<ImportFileEntity> { importFileEntity });
-
-                importFileEntity.Status = FileImportStatus.Completed;
-                importFileEntity.IsImportedSuccessful = true;
-
-                var fileEntity = CreateImportFileEntity(fileUploadModel, false, true);
-
-                await UnitOfWork.ImportFileRepository.AddAsync(fileEntity);
+                await ImportFile(fileUploadModel);
 
                 await UnitOfWork.SaveChangesAsync(currentUser.EmailAddress);
 
@@ -86,72 +64,34 @@ namespace Logic.Import
             }
         }
 
-        public async Task ImportVocabularyFilesAsync()
-        {
-            try
-            {
-                var pendingVocabularyFiles = await UnitOfWork.ImportFileRepository.GetAllByAsync(x => x.Status == FileImportStatus.Pending);
-
-                if (!pendingVocabularyFiles.Any())
-                {
-                    await _logger.LogMessageAsync(
-                        "No pending vocabulary files found for import.",
-                        LogMessageTypeEnum.Info);
-                    return;
-                }
-
-                if (!pendingVocabularyFiles.Any())
-                {
-                    return;
-                }
-
-                await ImportPendingFiles(pendingVocabularyFiles.ToList());
-
-            }
-            catch (Exception exception)
-            {
-                await _logger.LogMessageAsync(
-                    "An error occurred while importing vocabulary files.",
-                    LogMessageTypeEnum.Error,
-                    exception.Message,
-                    exception.StackTrace);
-                throw;
-            }
-        }
-
-        private async Task ImportPendingFiles(List<ImportFileEntity> pendingVocabularyFiles)
+        private async Task ImportFile(VocabularyFileUpload fileUploadModel)
         {
             var kaikkiWordExtractions = await _kaikkiDumpFileParser.GetKaikkiWordDictionary(
                 new List<TranslationEnum> { TranslationEnum.En, TranslationEnum.Da, TranslationEnum.De });
 
-            foreach (var file in pendingVocabularyFiles)
+            var lines = ReadFileLines(fileUploadModel.File);
+
+            if (!lines.Any())
             {
-                var lines = ReadFileLines(file.FileBytes);
+                await _logger.LogMessageAsync(
+                    $"The file contains no valid lines to import.",
+                    LogMessageTypeEnum.Warning);
 
-                if (!lines.Any())
-                {
-                    await _logger.LogMessageAsync(
-                        $"The file with ID {file.Id} contains no valid lines to import.",
-                        LogMessageTypeEnum.Warning);
-
-                    file.Status = FileImportStatus.Failed;
-
-                    continue;
-                }
-
-                var vocabularies = ParseLines(lines, GetMappedColums(lines.First()), file.SourceLanguage.ToString());
-
-                var vocabularyTranslations = new List<Vocabulary>();
-
-                foreach (var vocabulary in vocabularies)
-                {
-                    vocabularyTranslations.Add(await GetVocabularyTranslation(vocabulary, file, kaikkiWordExtractions));
-                }
-
-                var store = new VocabularyStorage(UnitOfWork);
-
-                await store.StoreVocabularies(vocabularyTranslations, file.Key, file.SourceLanguage);
+                return;
             }
+
+            var vocabularies = ParseLines(lines, GetMappedColums(lines.First()), fileUploadModel.SourceLanguage.ToString());
+
+            var vocabularyTranslations = new List<Vocabulary>();
+
+            foreach (var vocabulary in vocabularies)
+            {
+                vocabularyTranslations.Add(await GetVocabularyTranslation(fileUploadModel.Topic, fileUploadModel.SourceLanguage, fileUploadModel.Translations, vocabulary, kaikkiWordExtractions));
+            }
+
+            var store = new VocabularyStorage(UnitOfWork);
+
+            await store.StoreVocabularies(vocabularyTranslations, fileUploadModel.Topic, fileUploadModel.SourceLanguage);
         }
 
         private List<string> ReadFileLines(List<byte> fileBytes)
@@ -214,7 +154,6 @@ namespace Logic.Import
                 var wordModel = new VocabularyImportWordModel
                 {
                     Word = columns[columnMapping[WordColumn]].Trim(),
-
                     Article = columns[columnMapping[ArticleColumn]].Trim(),
                     Language = language,
                     PartOfSpeech = GetNormalizedPartOfSpeech(columns[columnMapping[PartOfSpeechColumn]].Trim()),
@@ -263,155 +202,115 @@ namespace Logic.Import
             }
         }
 
-        private async Task<TranslationModel> GetTranslations(
-            TranslationModel translationModel,
+        private async Task<TranslationModel?> GetTranslationModel(
+            string? word,
+            string partOfSpeech,
+            string sentence,
+            string? article,
             TranslationEnum sourceLanguage,
             TranslationEnum targetLanguage,
-            Dictionary<KaikkiKey, List<KaikkiModel>> kaikkiWordDictionary)
+            Dictionary<KaikkiKey, TranslationJsonModel> kaikkiModels)
         {
-            var dictionary = new Dictionary<string, string>
+            if (string.IsNullOrEmpty(word))
             {
-                { WordColumn, "" },
-                { ArticleColumn, "" },
-                { SentenceColumn, "" },
-                { IpaColumn, ""  }
-            };
-
-            foreach (var key in dictionary.Keys)
-            {
-                if (key == WordColumn && !string.IsNullOrEmpty(translationModel.Word))
-                {
-                    var result = kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = translationModel.Word.ToLower(), Language = sourceLanguage }, out var entries);
-
-                    dictionary[key] = result && entries != null && entries.Any() ?
-                        entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Word)).FirstOrDefault()?.Word ?? string.Empty :
-                        await GetTranslation(translationModel.Word, sourceLanguage, targetLanguage);
-                }
-                else if (key == ArticleColumn && !string.IsNullOrEmpty(translationModel.Article))
-                {
-                    dictionary[key] = await GetTranslation(translationModel.Article, sourceLanguage, targetLanguage);
-                }
-                else if (key == SentenceColumn && !string.IsNullOrEmpty(translationModel.Sentence))
-                {
-                    dictionary[key] = await GetTranslation(translationModel.Sentence, sourceLanguage, targetLanguage);
-                }
-                else if (key == IpaColumn)
-                {
-                    var ipaResult = kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = translationModel.Word.ToLower(), Language = sourceLanguage }, out var entries);
-                    dictionary[key] = ipaResult && entries != null && entries.Any() ?
-                        entries.Where(entry => entry != null && !string.IsNullOrEmpty(entry.Word)).FirstOrDefault()?.Sounds.FirstOrDefault(s => s.Ipa != null)?.Ipa ?? string.Empty :
-                        string.Empty;
-
-                }
+                return null;
             }
 
-            return new TranslationModel
+            var model = new TranslationModel
             {
-                Word = dictionary[WordColumn],
-                Article = dictionary[ArticleColumn],
-                Sentence = dictionary[SentenceColumn],
-                PartOfSpeech = translationModel.PartOfSpeech,
-                Language = targetLanguage,
-                Ipa = dictionary[IpaColumn],
+                Ipa = string.Empty,
+                PartOfSpeech = partOfSpeech,
+                Language = targetLanguage
             };
+
+            var wordIncudingArticke = ($"{article} {word}").ToLower().Trim();
+
+            var translatedWord = await GetLibeTranslation(word, sourceLanguage, targetLanguage);
+
+            if (kaikkiModels.TryGetValue(new KaikkiKey { Word = wordIncudingArticke ?? string.Empty, Language = targetLanguage }, out var kaikkiModel))
+            {
+                model.Word = kaikkiModel.Word;
+                model.Ipa = kaikkiModel.Ipa;
+            }
+
+            var translatedWordParts = translatedWord?.Split(" ")?.ToList() ?? new List<string> { string.Empty };
+
+            model.Word = translatedWordParts.Any() && translatedWordParts.Count > 1 ? translatedWordParts[1] : translatedWordParts[0];
+            model.Article = await GetLibeTranslation(article, sourceLanguage, targetLanguage) ?? string.Empty;
+            model.Sentence = await GetLibeTranslation(sentence, sourceLanguage, targetLanguage) ?? string.Empty;
+
+            return model;
         }
 
-        private async Task<string> GetTranslation(string? value, TranslationEnum sourceLanguage, TranslationEnum targetLanguage)
+
+
+        private async Task<string?> GetLibeTranslation(string? value, TranslationEnum sourceLanguage, TranslationEnum targetLanguage)
         {
             if (string.IsNullOrEmpty(value))
             {
                 return string.Empty;
             }
 
-            var body = JsonSerializer.Serialize(new LibreTranslateRequestBody
-            {
-                Word = value,
-                SourceLanguage = sourceLanguage.ToString(),
-                TargetLanguage = targetLanguage.ToString(),
-                Format = "text"
-            });
+            var translatedWord = await _libreTranslateClient.TranslateWord(value, sourceLanguage.ToString(), targetLanguage.ToString());
 
-            var requestMessage = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri($"{_apiSettings.LibreTranslateUrl}/translate"),
-                Content = new StringContent(body, System.Text.Encoding.UTF8, "application/json")
-            };
 
-            var response = await _httpClient.SendAsync(requestMessage);
-
-            response.EnsureSuccessStatusCode();
-
-            var jsonContent = await response.Content.ReadAsStringAsync();
-
-            if (string.IsNullOrEmpty(jsonContent))
-            {
-                return string.Empty;
-            }
-
-            var translationResult = JsonSerializer.Deserialize<LibreTranslation>(jsonContent);
-
-            return translationResult?.TranslatedText ?? string.Empty;
+            return translatedWord;
         }
 
+        private TranslationJsonModel? GetKaikkiEntry(string word, TranslationEnum language, string normalizedPartOfSpeech, Dictionary<KaikkiKey, TranslationJsonModel> kaikkiWordDictionary)
+        {
+            if (kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = word.ToLower(), Language = language }, out var entry))
+            {
+                return entry;
+            }
+
+            return null;
+        }
+
+
         private async Task<Vocabulary> GetVocabularyTranslation(
+            string topic,
+            TranslationEnum sourceLanguage,
+            List<TranslationEnum> translationLanguages,
             VocabularyImportWordModel model,
-            ImportFileEntity file,
-            Dictionary<KaikkiKey, List<KaikkiModel>> kaikkiWordDictionary)
+            Dictionary<KaikkiKey, TranslationJsonModel> kaikkiWordDictionary)
         {
             var vocabularyTranslation = new Vocabulary
             {
-                Topic = new VocabularyTopic { Name = file.Key, Language = file.SourceLanguage },
+                Topic = new VocabularyTopic { Name = topic, Language = sourceLanguage },
                 Translations = new List<TranslationModel>()
             };
 
-            kaikkiWordDictionary.TryGetValue(new KaikkiKey { Word = model.Word.ToLower(), Language = file.SourceLanguage }, out var entries);
+            var kaikkiEntry = GetKaikkiEntry(model.Word, sourceLanguage, GetNormalizedPartOfSpeech(model.PartOfSpeech), kaikkiWordDictionary);
 
             vocabularyTranslation.Translations.Add(new TranslationModel
             {
-                Word = model.Word,
-                Article = model.Article,
-                Sentence = model.ExampleSentence,
-                PartOfSpeech = model.PartOfSpeech,
-                Language = file.SourceLanguage,
-                Ipa = entries?.FirstOrDefault(e => e.Word.Equals(model.Word, StringComparison.InvariantCultureIgnoreCase))?.Sounds.FirstOrDefault(s => s.Ipa != null)?.Ipa ?? string.Empty
+                Word = model?.Word ?? string.Empty,
+                Article = model?.Article ?? string.Empty,
+                Sentence = model?.ExampleSentence ?? string.Empty,
+                PartOfSpeech = model?.PartOfSpeech ?? string.Empty,
+                Language = sourceLanguage,
+                Ipa = kaikkiEntry?.Ipa ?? string.Empty,
             });
 
-            foreach (var translationType in file.Translations)
+            foreach (var translationType in translationLanguages)
             {
-                var translationWordModel = new TranslationModel
+                var translationModel = await GetTranslationModel(
+                    model.Word,
+                    GetNormalizedPartOfSpeech(model.PartOfSpeech),
+                    model.ExampleSentence,
+                    model.Article,
+                    sourceLanguage,
+                    translationType,
+                    kaikkiWordDictionary);
+
+                if (translationModel != null)
                 {
-                    Word = model.Word,
-                    Article = model.Article,
-                    Sentence = model.ExampleSentence,
-                    PartOfSpeech = model.PartOfSpeech,
-                    Language = translationType
-                };
-
-                var translationModel = await GetTranslations(translationWordModel, model.Language, translationType, kaikkiWordDictionary);
-
-                vocabularyTranslation.Translations.Add(translationModel);
+                    vocabularyTranslation.Translations.Add(translationModel);
+                }
             }
 
             return vocabularyTranslation;
-        }
-
-        private ImportFileEntity CreateImportFileEntity(VocabularyFileUpload fileUploadModel, bool isPending, bool isCompleted)
-        {
-
-            var importFileEntity = new ImportFileEntity
-            {
-                FileName = fileUploadModel.FileName,
-                FileBytes = fileUploadModel.File,
-                Key = fileUploadModel.Topic,
-                SourceLanguage = fileUploadModel.SourceLanguage,
-                Translations = fileUploadModel.Translations,
-                Status = isPending ? FileImportStatus.Pending : isCompleted ? FileImportStatus.Completed : FileImportStatus.Failed,
-                IsImportedSuccessful = isCompleted
-            };
-
-            return importFileEntity;
-
         }
     }
 }

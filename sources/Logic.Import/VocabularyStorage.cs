@@ -64,6 +64,7 @@ namespace Logic.Import
                     }
                     else
                     {
+                        
                         await _unitOfWork.VocabularyUnitOfWork.VocabularyToCategoryRepository.AddAsync(new VocabularyToCategoryEntity
                         {
                             Vocabulary = new VocabularyEntity
@@ -79,7 +80,7 @@ namespace Logic.Import
                                 PartOfSpeechId = partOfSpeechIdMap[translation.PartOfSpeech],
                                 IsDirty = false
                             },
-                            Category = vocabularyCategoryMap[category],
+                            CategoryId = vocabularyCategoryMap[category].Id,
                         });
 
                         databaseIsChanged = true;
@@ -162,6 +163,7 @@ namespace Logic.Import
             {
                 await _unitOfWork.VocabularyUnitOfWork.VocabularyCategoryRepository.AddAsync(new VocabularyCategoryEntity
                 {
+                    IdExternal = Guid.NewGuid(),
                     GroupGuid = Guid.NewGuid(),
                     Name = topic,
                     SourceLanguage = sourceLanguage,

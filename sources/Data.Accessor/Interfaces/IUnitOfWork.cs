@@ -1,5 +1,4 @@
-﻿using Data.Database.Entities.Files;
-using Data.Database.Entities.User;
+﻿using Data.Database.Entities.User;
 
 namespace Data.Accessor.Interfaces
 {
@@ -8,7 +7,6 @@ namespace Data.Accessor.Interfaces
         IRepositoryBase<UserEntity> UserRepository { get; }
         IRepositoryBase<UserCredentialsEntity> UserCredentialsRepository { get; }
         IRepositoryBase<UserSettingsEntity> UserSettingsRepository { get; }
-        IRepositoryBase<ImportFileEntity> ImportFileRepository { get; }
         IVocabularyUnitOfWork VocabularyUnitOfWork { get; }
         IAdministrationUnitOfWork AdministrationUnitOfWork { get; }
         Task<int> SaveChangesAsync(string userName);

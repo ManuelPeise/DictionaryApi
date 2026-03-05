@@ -1,7 +1,6 @@
 ﻿using Data.Accessor.Interfaces;
 using Data.Database;
 using Data.Database.Entities;
-using Data.Database.Entities.Files;
 using Data.Database.Entities.User;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,12 +27,6 @@ namespace Data.Accessor
         private IVocabularyUnitOfWork _vocabularyUnitOfWork;
         public IVocabularyUnitOfWork VocabularyUnitOfWork => _vocabularyUnitOfWork ?? new VocabularyUnitOfWork(_dbContext);
 
-        // files unit of work
-
-        private IRepositoryBase<ImportFileEntity>? _importFileRepository;
-        public IRepositoryBase<ImportFileEntity> ImportFileRepository => _importFileRepository ?? new RepositoryBase<ImportFileEntity>(_dbContext);
-
-       
         public UnitOfWork(DatabaseContext dbContext, IVocabularyUnitOfWork vocabularyUnitOfWork, IAdministrationUnitOfWork administrationUnitOfWork)
         {
             _dbContext = dbContext;
@@ -42,7 +35,6 @@ namespace Data.Accessor
             _userRepository = new RepositoryBase<UserEntity>(_dbContext);
             _userCredentialsRepository = new RepositoryBase<UserCredentialsEntity>(_dbContext);
             _userSettingsRepository = new RepositoryBase<UserSettingsEntity>(_dbContext);
-            _importFileRepository = new RepositoryBase<ImportFileEntity>(_dbContext);
         }
 
         public async Task<int> SaveChangesAsync(string userName)

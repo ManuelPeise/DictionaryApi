@@ -1,4 +1,5 @@
 ﻿using Shared.Enums;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 
 namespace Logic.Parsing.Models
@@ -56,10 +57,32 @@ namespace Logic.Parsing.Models
 
     }
 
-    public class KaikkiKey
+    public class KaikkiKey : IEquatable<KaikkiKey>
     {
         public string Word { get; set; } = string.Empty;
         public TranslationEnum Language { get; set; }
 
+        public bool Equals(KaikkiKey? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+
+            return string.Equals(
+                       Word,
+                       other.Word,
+                       StringComparison.InvariantCultureIgnoreCase)
+                   && Language == other.Language;
+        }
+
+        public override bool Equals(object? obj) => Equals(obj as KaikkiKey);
+
+        public override int GetHashCode()
+        {
+            var wordHash = StringComparer
+                .InvariantCultureIgnoreCase
+                .GetHashCode(Word ?? string.Empty);
+
+            return HashCode.Combine(wordHash, Language);
+        }
     }
 }

@@ -47,6 +47,7 @@ const VocabularyValidationPageContainer: React.FC = () => {
 
   const uploadVocabularyFile = React.useCallback(
     async (model: IVocabularyFileUpload) => {
+      setIsLoading(true);
       await vovabularyApi
         .sendPostRequest<void>(
           `${process.env.REACT_APP_API_URL}vocabularyimport/importvocabularyfile`,
@@ -55,6 +56,7 @@ const VocabularyValidationPageContainer: React.FC = () => {
         .then(async () => {
           await loadInitialModel(fetchInitialDataCallback, setInitialData);
         });
+      setIsLoading(false);
     },
     [fetchInitialDataCallback, vovabularyApi],
   );
@@ -134,6 +136,10 @@ const VocabularyValidationPage: React.FC<IProps> = (props) => {
     [categoryDropdownItems],
   );
 
+  const handleSelectedVocabularyGroupChanged = React.useCallback((guid: string | null) => {
+    setSelectedVocabularyGroupGuid(guid);
+  }, []);
+
   const vocabularyGroups = React.useMemo((): IGroupByResult<IVocabularyExportModel>[] => {
     const selectedGroup = vocabularyCategoryGroups?.find((g) => g.key === selectedCategory?.label);
 
@@ -181,7 +187,7 @@ const VocabularyValidationPage: React.FC<IProps> = (props) => {
           vocabularyGroups={vocabularyGroups}
           selectedVocabularyGroupId={selectedVocabularyGroupGuid}
           handleSelectedCategoryChanged={handleSelectedCategoryChanged}
-          handleSelectedVocabularyGroupChanged={setSelectedVocabularyGroupGuid}
+          handleSelectedVocabularyGroupChanged={handleSelectedVocabularyGroupChanged}
         />
         <VocabularyDetails
           isLoading={isLoading}

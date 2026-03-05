@@ -15,8 +15,11 @@ rebuild container
 
 ### clean rebuild
 cd D:\Development\Words\DictionaryApi
+
+docker network create dictionary-network
 docker compose down
-docker compose up --build
+docker compose -f docker-compose.libretranslate.yml up -d
+docker compose -f docker-compose.yml up -d --build
 
 ### quick rebuild
 docker compose up --build --force-recreate

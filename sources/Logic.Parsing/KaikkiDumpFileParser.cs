@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using Shared.Enums;
 using Shared.Models;
+using Shared.Models.KaikkiJsonModels;
+using Shared.Models.Words;
 using System.IO.Compression;
 using System.Text.Json;
 
@@ -32,14 +34,11 @@ namespace Logic.Parsing
                 Timeout = Timeout.InfiniteTimeSpan
             };
             _fileSystemConfiguration = fileSystemConfiguration.Value;
-
-
-
         }
 
-        public async Task<Dictionary<KaikkiKey, List<KaikkiModel>>> GetKaikkiWordDictionary(List<TranslationEnum> translations)
+        public async Task<Dictionary<KaikkiKey, TranslationJsonModel>> GetKaikkiWordDictionary(List<TranslationEnum> translations)
         {
-            var dictionary = new Dictionary<KaikkiKey, List<KaikkiModel>>();
+            var dictionary = new Dictionary<KaikkiKey, TranslationJsonModel>();
             string json;
 
             using (var stream = new MemoryStream(Resx.Files.Kaikki))
@@ -53,7 +52,12 @@ namespace Logic.Parsing
                 return dictionary;
             }
 
-            var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, List<KaikkiModel>>>(json) ?? new Dictionary<string, List<KaikkiModel>>();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, TranslationJsonModel>>(json, options) ?? new Dictionary<string, TranslationJsonModel>();
 
             foreach (var key in jsonDictionary.Keys)
             {
@@ -68,9 +72,21 @@ namespace Logic.Parsing
             return dictionary;
         }
 
+        public async Task<TranslationJsonModel?> LoadWord(string word)
+        {
+            var dictionary = await GetKaikkiWordDictionary(new List<TranslationEnum>
+            {
+                TranslationEnum.De,
+                TranslationEnum.En,
+                TranslationEnum.Da
+            });
+
+            return dictionary.TryGetValue(new KaikkiKey { Word = word.ToLower(), Language = TranslationEnum.En }, out var entry) ? entry : null;
+        }
+
         public async Task<bool> ParseFileStream(List<TranslationEnum> translations)
         {
-            var dictionary = new Dictionary<string, List<KaikkiModel>>();
+            var dictionary = new Dictionary<string, TranslationJsonModel>();
 
             try
             {
@@ -95,13 +111,14 @@ namespace Logic.Parsing
 
                             var model = await ParseLine(line, languageCodes);
 
-                            if (model != null && !KeyIsAlreadyIncludedInDictionary(model, dictionary))
+                            var translationModels = BuildTranslationModels(model, TranslationEnum.En);
+
+                            foreach (var translationModel in translationModels)
                             {
-                                dictionary[KaikkiParserUtils.GetKaikkiKey(model)] = new List<KaikkiModel> { model };
-                            }
-                            else if (model != null && KeyIsAlreadyIncludedInDictionary(model, dictionary))
-                            {
-                                dictionary[KaikkiParserUtils.GetKaikkiKey(model)].Add(model);
+                                if(!dictionary.TryGetValue(KaikkiParserUtils.GetKaikkiKey(translationModel), out _))
+                                {
+                                    dictionary[KaikkiParserUtils.GetKaikkiKey(translationModel)] = translationModel;
+                                }
                             }
                         }
                     }
@@ -147,6 +164,39 @@ namespace Logic.Parsing
 
                 return false;
             }
+        }
+
+        private List<TranslationJsonModel> BuildTranslationModels(KaikkiModel? model, TranslationEnum defaultLanguage)
+        {
+            var models = new List<TranslationJsonModel>
+            {
+                new TranslationJsonModel
+                {
+                    Word = model?.Word ?? string.Empty,
+                    PartOfSpeech = model?.PartOfSpeech ?? string.Empty,
+                    Ipa = model?.Sounds?.FirstOrDefault()?.Ipa ?? string.Empty,
+                    Language = defaultLanguage,
+                    LanguageCode = model?.LanguageCode ?? string.Empty,
+                    
+                }
+            };
+
+            model?.Translations.ForEach(translation =>
+            {
+                if (translation.LanguageCode != null && Enum.TryParse<TranslationEnum>(translation.LanguageCode, true, out var languageEnum))
+                {
+                    models.Add(new TranslationJsonModel
+                    {
+                        Word = translation.Word,
+                        PartOfSpeech = model?.PartOfSpeech ?? string.Empty,
+                        Ipa = string.Empty,
+                        Language = languageEnum,
+                        LanguageCode = translation.LanguageCode
+                    });
+                }
+            });
+
+            return models;
         }
 
         private async Task<KaikkiModel?> ParseLine(string line, List<string> languageCodes)
@@ -198,10 +248,5 @@ namespace Logic.Parsing
             }
         }
 
-        private bool KeyIsAlreadyIncludedInDictionary(KaikkiModel model, Dictionary<string, List<KaikkiModel>> dictionary)
-        {
-            return dictionary.TryGetValue(KaikkiParserUtils.GetKaikkiKey(model), out _);
-
-        }
     }
 }

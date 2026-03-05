@@ -33,4 +33,7 @@ namespace Shared.Models.KaikkiJsonModels
         public string? LanguageCode { get; set; }
         public List<string>? Synonyms { get; set; }
     }
+
+  
+
 }

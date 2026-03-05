@@ -137,6 +137,12 @@ const VocabularyDetails: React.FC<IProps> = (props) => {
     setVocabularies(group?.items || []);
   }, [group?.items]);
 
+  React.useEffect(() => {
+    if (group?.items && group.items.length > 0) {
+      setSelectedIndex(0);
+    }
+  }, [group?.items]);
+
   if (vocabularies == null || vocabularies.length === 0) {
     return <VocabularyContentPlaceholder />;
   }

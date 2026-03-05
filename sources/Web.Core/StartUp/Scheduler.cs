@@ -29,7 +29,7 @@ namespace Web.Core.StartUp
                 GetNextInterval(startTime, 15),
                 "0 0/30 * * * ?"); // "0 0 7 1 * ?"
 
-            await scheduler.Start();
+            // await scheduler.Start();
         }
 
         private static async Task AddJob(

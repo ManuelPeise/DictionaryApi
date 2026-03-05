@@ -1,7 +1,6 @@
-﻿
-
-using Logic.Parsing.Models;
+﻿using Logic.Parsing.Models;
 using Shared.Enums;
+using Shared.Models.Words;
 using System.Text.Json;
 
 namespace Logic.Parsing
@@ -23,11 +22,11 @@ namespace Logic.Parsing
             }
         }
 
-        internal static string GetKaikkiKey(KaikkiModel model)
+        internal static string GetKaikkiKey(TranslationJsonModel model)
         {
             return JsonSerializer.Serialize(new KaikkiKey
             {
-                Word = model.NormalizedWord.ToLower(),
+                Word = model.Word.Normalize().ToLower(),
                 Language = MapLanguageCodeToTranslationEnum(model.LanguageCode ?? string.Empty) ?? TranslationEnum.En
             });
         }

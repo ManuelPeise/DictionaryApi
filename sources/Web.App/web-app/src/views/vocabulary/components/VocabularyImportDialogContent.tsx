@@ -15,7 +15,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
   const { isLoading, uploadFile } = props;
   const [importModel, setImportModel] = React.useState<IVocabularyFileUpload>({
     topic: null,
-    sourceLanguage: TranslationEnum.De,
+    sourceLanguage: TranslationEnum.En,
     translations: [],
     file: [],
     fileName: '',
@@ -23,10 +23,6 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
 
   const languageCheckboxItems = React.useMemo(() => {
     return [
-      {
-        label: 'English',
-        value: TranslationEnum.En,
-      },
       {
         label: 'German',
         value: TranslationEnum.De,
@@ -59,20 +55,6 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
     }));
   }, []);
 
-  const handleSourceLanguageChanged = React.useCallback(
-    (event: React.ChangeEvent<HTMLInputElement, Element>, checked: boolean) => {
-      if (isNaN(Number(event.target.value))) {
-        return;
-      }
-      const valueAsNumber = Number(event.target.value);
-      setImportModel((prev) => ({
-        ...prev,
-        sourceLanguage: valueAsNumber as TranslationEnum,
-      }));
-    },
-    [],
-  );
-
   const handleTranslationChanged = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement, Element>, checked: boolean) => {
       if (isNaN(Number(event.target.value))) {
@@ -95,7 +77,7 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
     await uploadFile(importModel).then(() => {
       setImportModel({
         topic: null,
-        sourceLanguage: TranslationEnum.De,
+        sourceLanguage: TranslationEnum.En,
         translations: [],
         file: [],
         fileName: '',
@@ -148,37 +130,6 @@ const VocabularyImportDialogContent: React.FC<IProps> = (props) => {
             variant="standard"
             placeholder="Geben Sie eine Kategorie ein..."
           />
-        </Grid>
-        <Grid size={12} display="flex" flexDirection="row" alignItems="center">
-          <Grid
-            size={6}
-            display="flex"
-            flexDirection="row"
-            justifyContent="flex-start"
-            alignItems="center"
-          >
-            <Typography variant="h6">Quellsprache auswählen</Typography>
-          </Grid>
-          <Grid
-            size={6}
-            display="flex"
-            flexDirection="row"
-            justifyContent="flex-end"
-            alignItems="flex-start"
-            gap={2}
-          >
-            {languageCheckboxItems.map((item) => (
-              <FormLabel key={item.value} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Checkbox
-                  sx={{ paddingBottom: 1.5 }}
-                  checked={importModel.sourceLanguage === item.value}
-                  value={item.value}
-                  onChange={handleSourceLanguageChanged}
-                />
-                {item.label}
-              </FormLabel>
-            ))}
-          </Grid>
         </Grid>
         <Grid size={12} display="flex" flexDirection="row" alignItems="center">
           <Grid

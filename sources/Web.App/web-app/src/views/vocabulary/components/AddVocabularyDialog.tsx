@@ -24,7 +24,6 @@ const AddVocabularyDialog: React.FC<IProps> = (props) => {
       open={isImportVocabularyDialogOpen}
       onClose={toggleImportVocabularyDialog.bind(null, false)}
       maxWidth="md"
-      keepMounted
       slotProps={{ paper: { sx: { padding: '1rem' } } }}
     >
       <DialogTitle>

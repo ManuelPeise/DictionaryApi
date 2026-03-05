@@ -1,12 +1,10 @@
 ﻿using Data.Database.Entities;
-using Data.Database.Entities.Files;
 using Data.Database.Entities.User;
 using Data.Database.Entities.Vocabulary;
 using Data.Database.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Shared.Models.Settings;
-using System.Collections.Generic;
 
 namespace Data.Database
 {
@@ -76,9 +74,5 @@ namespace Data.Database
         public DbSet<VocabularySessionEntity> VocabularySessionTable { get; set; }
         public DbSet<VocabularySessionResultEntity> VocabularySessionResultTable { get; set; }
         public DbSet<VocabularyProgressEntity> VocabularyProgressTable { get; set; }
-
-        // files
-        public DbSet<ImportFileEntity> ImportFileTable { get; set; }
-
     }
 }

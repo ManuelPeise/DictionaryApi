@@ -8,7 +8,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: DictionaryAppDb
     ports:
-      - "3307:3306"
+      - "3307:3306"   # Host:Container
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -32,6 +32,8 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       DOTNET_RUNNING_IN_CONTAINER: "true"
+
+      # WICHTIG: Container-Port 3306, nicht Host-Port 3307
       ConnectionStrings__DictionaryAppDb: "Server=mysql;Port=3306;Database=DictionaryAppDb;User=root;Password=root;"
       Jwt__SecurityKey: "YourSuperSecretKeyForJWTTokenGeneration123!@#"
       Jwt__Issuer: "DictionaryApi"
@@ -39,10 +41,14 @@ services:
       Jwt__ExpirationInMinutes: "60"
       Settings__MaxFailedLoginAttempts: "5"
       Settings__LockoutDurationInMinutes: "30"
+
+      # LibreTranslate-URL im Container
+      ApiSettings__LibreTranslateUrl: "http://libretranslate:5000/"
+
     ports:
       - "5000:8080"
     depends_on:
-      mysql: 
+      mysql:
         condition: service_healthy
     networks:
       - dictionary-network
@@ -52,7 +58,7 @@ services:
     image: libretranslate/libretranslate:latest
     container_name: libretranslate
     ports:
-      - "80:80"
+      - "5001:5000"   # Host:Container (LibreTranslate)
     networks:
       - dictionary-network
     restart: unless-stopped
@@ -74,4 +80,5 @@ volumes:
 
 networks:
   dictionary-network:
-    driver: bridge
+    external: true
+    name: dictionary-network
